@@ -8,6 +8,16 @@ from datetime import date, timedelta
 
 class WebsiteSaleDeliveryBooking(WebsiteSale):
 
+    @http.route(['/shop/payment'], type='http', auth="public", website=True, sitemap=False)
+    def payment(self, **post):
+        response = super(WebsiteSaleDeliveryBooking, self).payment(**post)
+        order = request.website.sale_get_order()
+        if hasattr(response, 'qcontext') and order and order.carrier_id:
+            carrier = order.carrier_id
+            if carrier.enable_delivery_date_selection:
+                response.qcontext['delivery_dates'] = self._get_available_dates(carrier)
+        return response
+
     @http.route(['/shop/payment/transaction'], type='http', auth="public", website=True, sitemap=False)
     def payment_transaction(self, **post):
         order = request.website.sale_get_order()
