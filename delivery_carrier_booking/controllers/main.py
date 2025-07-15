@@ -8,16 +8,6 @@ from datetime import date, timedelta
 
 class WebsiteSaleDeliveryBooking(WebsiteSale):
 
-    @http.route(['/shop/payment'], type='http', auth="public", website=True, sitemap=False)
-    def payment(self, **post):
-        response = super(WebsiteSaleDeliveryBooking, self).payment(**post)
-        order = request.website.sale_get_order()
-        if hasattr(response, 'qcontext') and order and order.carrier_id:
-            carrier = order.carrier_id
-            if carrier.enable_delivery_date_selection:
-                response.qcontext['delivery_dates'] = self._get_available_dates(carrier)
-        return response
-
     @http.route(['/shop/payment/transaction'], type='http', auth="public", website=True, sitemap=False)
     def payment_transaction(self, **post):
         order = request.website.sale_get_order()
@@ -72,7 +62,8 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
             carrier = order.carrier_id
             if carrier.enable_delivery_date_selection:
                 res = super(WebsiteSaleDeliveryBooking, self).checkout(**post)
-                res.qcontext['delivery_dates'] = self._get_available_dates(carrier)
+                if hasattr(res, 'qcontext'):
+                    res.qcontext['delivery_dates'] = self._get_available_dates(carrier)
                 return res
 
         return super(WebsiteSaleDeliveryBooking, self).checkout(**post)
@@ -82,4 +73,27 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
         order = request.website.sale_get_order()
         if order.carrier_id and order.carrier_id.enable_delivery_date_selection and not order.delivery_booking_date:
             return request.redirect("/shop/checkout?carrier_booking_error=1")
-        return super(WebsiteSaleDeliveryBooking, self).confirm_order(**post)
+
+        # Add delivery booking data to context for payment page
+        result = super(WebsiteSaleDeliveryBooking, self).confirm_order(**post)
+
+        # If this is a redirect to payment page, add delivery dates to context
+        if hasattr(result, 'qcontext') and order and order.carrier_id:
+            carrier = order.carrier_id
+            if carrier.enable_delivery_date_selection:
+                result.qcontext['delivery_dates'] = self._get_available_dates(carrier)
+
+        return result
+
+    # Override the shop method to add delivery dates context to payment page
+    @http.route()
+    def shop(self, page=0, category=None, search='', min_price=0.0, max_price=0.0, ppg=False, **post):
+        result = super(WebsiteSaleDeliveryBooking, self).shop(page, category, search, min_price, max_price, ppg, **post)
+
+        # Add delivery dates to context if on payment-related pages
+        if hasattr(result, 'qcontext'):
+            order = request.website.sale_get_order()
+            if order and order.carrier_id and order.carrier_id.enable_delivery_date_selection:
+                result.qcontext['delivery_dates'] = self._get_available_dates(order.carrier_id)
+
+        return result
