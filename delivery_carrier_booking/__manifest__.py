@@ -28,6 +28,11 @@
         'views/sale_order_views.xml',
         'views/website_sale_templates.xml',
     ],
+    'assets': {
+        'web.assets_frontend': [
+            'delivery_carrier_booking/static/src/js/checkout.js',
+        ],
+    },
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',
