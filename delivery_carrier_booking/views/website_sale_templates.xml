@@ -29,6 +29,28 @@
 
                     var ajax = require('web.ajax');
 
+                    $(document).ready(function () {
+                        var carrier_id = $('input[name="delivery_type"]:checked').val();
+                        if (carrier_id) {
+                            ajax.jsonRpc('/shop/get_delivery_dates', 'call', {
+                                'carrier_id': carrier_id
+                            }).then(function (data) {
+                                var $date_select = $('#delivery_date');
+                                $date_select.empty();
+                                if (data.dates &amp;&amp; data.dates.length > 0) {
+                                    $date_select.append('&lt;option value=""&gt;Select a date&lt;/option&gt;');
+                                    data.dates.forEach(function (date) {
+                                        $date_select.append('&lt;option value="' + date.value + '"&gt;' + date.label + '&lt;/option&gt;');
+                                    });
+                                    $('#delivery_booking_options').show();
+                                } else {
+                                    $('#delivery_booking_options').hide();
+                                }
+                                $date_select.trigger('change');
+                            });
+                        }
+                    });
+
                     $('input[name="delivery_type"]').on('change', function () {
                         var carrier_id = $(this).val();
                         if (carrier_id) {

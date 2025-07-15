@@ -20,15 +20,17 @@
                             <field name="max_orders_per_slot"/>
                         </group>
                     </group>
-                    <group string="Weekly Time Schedules">
-                        <field name="booking_slot_ids" nolabel="1">
-                            <tree string="Time Schedules" editable="bottom">
-                                <field name="weekday"/>
-                                <field name="opening_hour" widget="float_time"/>
-                                <field name="closing_hour" widget="float_time"/>
-                            </tree>
-                        </field>
-                    </group>
+                    <notebook>
+                        <page string="Weekly Time Schedules">
+                            <field name="booking_slot_ids">
+                                <tree string="Time Schedules" editable="bottom">
+                                    <field name="weekday"/>
+                                    <field name="opening_hour" widget="float_time"/>
+                                    <field name="closing_hour" widget="float_time"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
                 </page>
             </xpath>
         </field>

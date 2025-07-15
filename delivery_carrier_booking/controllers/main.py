@@ -29,7 +29,7 @@ class WebsiteSaleDeliveryBooking(http.Controller):
 
         selected_date = date.fromisoformat(delivery_date)
         weekday = str(selected_date.weekday())
-        slots = carrier.booking_slot_ids.filtered(lambda s: s.weekday == weekday)
+        slots = carrier.booking_slt_ids.filtered(lambda s: s.weekday == weekday)
         time_slots = []
         for slot in slots:
             current_time = slot.opening_hour
