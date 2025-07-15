@@ -22,11 +22,18 @@
                     </group>
                     <group string="Weekly Time Schedules">
                         <field name="booking_slot_ids" nolabel="1">
-                            <tree string="Time Schedules" editable="bottom">
+                            <tree>
                                 <field name="weekday"/>
                                 <field name="opening_hour" widget="float_time"/>
                                 <field name="closing_hour" widget="float_time"/>
                             </tree>
+                            <form>
+                                <group>
+                                    <field name="weekday"/>
+                                    <field name="opening_hour" widget="float_time"/>
+                                    <field name="closing_hour" widget="float_time"/>
+                                </group>
+                            </form>
                         </field>
                     </group>
                 </page>

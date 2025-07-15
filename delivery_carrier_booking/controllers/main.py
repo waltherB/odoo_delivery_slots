@@ -2,10 +2,11 @@
 
 from odoo import http
 from odoo.http import request
+from odoo.addons.website_sale.controllers.main import WebsiteSale
 import json
 from datetime import date, timedelta
 
-class WebsiteSaleDeliveryBooking(http.Controller):
+class WebsiteSaleDeliveryBooking(WebsiteSale):
 
     @http.route(['/shop/payment'], type='http', auth="public", website=True)
     def payment(self, **post):
