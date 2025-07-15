@@ -8,15 +8,13 @@ from datetime import date, timedelta
 
 class WebsiteSaleDeliveryBooking(WebsiteSale):
 
-    @http.route(['/shop/payment'], type='http', auth="public", website=True)
-    def payment(self, **post):
-        res = super(WebsiteSaleDeliveryBooking, self).payment(**post)
+    @http.route(['/shop/payment/transaction'], type='http', auth="public", website=True, sitemap=False)
+    def payment_transaction(self, **post):
         order = request.website.sale_get_order()
-        if order and order.carrier_id:
-            carrier = order.carrier_id
-            if carrier.enable_delivery_date_selection:
-                res.qcontext['delivery_dates'] = self._get_available_dates(carrier)
-        return res
+        if order.carrier_id and order.carrier_id.enable_delivery_date_selection and not order.delivery_booking_date:
+            return request.redirect("/shop/checkout?carrier_booking_error=1")
+
+        return super(WebsiteSaleDeliveryBooking, self).payment_transaction(**post)
 
     def _get_available_dates(self, carrier):
         dates = []
@@ -53,3 +51,18 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
                 'delivery_booking_slot': delivery_time_slot,
             })
         return {}
+
+    @http.route(['/shop/checkout'], type='http', auth='public', website=True, sitemap=False)
+    def checkout(self, **post):
+        if post.get('carrier_booking_error'):
+            post['carrier_booking_error'] = 'Please select a delivery date for your booking.'
+
+        order = request.website.sale_get_order()
+        if order and order.carrier_id:
+            carrier = order.carrier_id
+            if carrier.enable_delivery_date_selection:
+                res = super(WebsiteSaleDeliveryBooking, self).checkout(**post)
+                res.qcontext['delivery_dates'] = self._get_available_dates(carrier)
+                return res
+
+        return super(WebsiteSaleDeliveryBooking, self).checkout(**post)
