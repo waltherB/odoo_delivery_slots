@@ -21,11 +21,29 @@
                         </group>
                     </group>
                     <field name="booking_slot_ids">
-                        <tree string="Time Schedules" editable="bottom">
+                        <kanban>
                             <field name="weekday"/>
-                            <field name="opening_hour" widget="float_time"/>
-                            <field name="closing_hour" widget="float_time"/>
-                        </tree>
+                            <field name="opening_hour"/>
+                            <field name="closing_hour"/>
+                            <templates>
+                                <t t-name="kanban-box">
+                                    <div class="oe_kanban_global_click">
+                                        <div class="o_kanban_record_top">
+                                            <div class="o_kanban_record_headings">
+                                                <strong class="o_kanban_record_title">
+                                                    <span><t t-esc="record.weekday.value"/></span>
+                                                </strong>
+                                            </div>
+                                        </div>
+                                        <div class="o_kanban_record_body">
+                                            <p>
+                                                <field name="opening_hour" widget="float_time"/> - <field name="closing_hour" widget="float_time"/>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </t>
+                            </templates>
+                        </kanban>
                     </field>
                 </page>
             </xpath>

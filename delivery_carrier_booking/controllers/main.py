@@ -6,11 +6,13 @@ from odoo.addons.website_sale.controllers.main import WebsiteSale
 import json
 from datetime import date, timedelta
 
-class WebsiteSaleDeliveryBooking(WebsiteSale):
+class WebsiteSaleDeliveryBooking(http.Controller):
 
     @http.route(['/shop/payment'], type='http', auth="public", website=True)
     def payment(self, **post):
-        res = super(WebsiteSaleDeliveryBooking, self).payment(**post)
+        website_sale_controller = WebsiteSale()
+        res = website_sale_controller.payment(**post)
+
         order = request.website.sale_get_order()
         if order and order.carrier_id:
             carrier = order.carrier_id
