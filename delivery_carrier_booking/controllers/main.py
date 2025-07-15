@@ -2,32 +2,24 @@
 
 from odoo import http
 from odoo.http import request
-from odoo.addons.website_sale.controllers.main import WebsiteSale
 import json
 from datetime import date, timedelta
 
 class WebsiteSaleDeliveryBooking(http.Controller):
 
-    @http.route(['/shop/payment'], type='http', auth="public", website=True)
-    def payment(self, **post):
-        website_sale_controller = WebsiteSale()
-        res = website_sale_controller.payment(**post)
+    @http.route(['/shop/get_delivery_dates'], type='json', auth="public", website=True)
+    def get_delivery_dates(self, carrier_id, **post):
+        carrier = request.env['delivery.carrier'].browse(int(carrier_id))
+        if not carrier:
+            return {}
 
-        order = request.website.sale_get_order()
-        if order and order.carrier_id:
-            carrier = order.carrier_id
-            if carrier.enable_delivery_date_selection:
-                res.qcontext['delivery_dates'] = self._get_available_dates(carrier)
-        return res
-
-    def _get_available_dates(self, carrier):
         dates = []
         start_date = date.today() + timedelta(days=carrier.start_delivery_after_days)
         for i in range(30): # Show 30 days
             current_date = start_date + timedelta(days=i)
             if str(current_date.weekday()) in carrier.booking_slot_ids.mapped('weekday'):
-                dates.append(current_date)
-        return dates
+                dates.append({'value': current_date.isoformat(), 'label': current_date.strftime('%A, %d %B %Y')})
+        return {'dates': dates}
 
     @http.route(['/shop/get_time_slots'], type='json', auth="public", website=True)
     def get_time_slots(self, delivery_date, carrier_id, **post):
