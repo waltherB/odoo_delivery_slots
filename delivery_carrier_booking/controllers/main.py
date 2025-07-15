@@ -8,13 +8,13 @@ from datetime import date, timedelta
 
 class WebsiteSaleDeliveryBooking(WebsiteSale):
 
-    @http.route(['/shop/payment'], type='http', auth="public", website=True, csrf=False)
-    def payment(self, **post):
+    @http.route(['/shop/payment/transaction'], type='http', auth="public", website=True, sitemap=False)
+    def payment_transaction(self, **post):
         order = request.website.sale_get_order()
         if order.carrier_id and order.carrier_id.enable_delivery_date_selection and not order.delivery_booking_date:
             return request.redirect("/shop/checkout?carrier_booking_error=1")
 
-        return super(WebsiteSaleDeliveryBooking, self).payment(**post)
+        return super(WebsiteSaleDeliveryBooking, self).payment_transaction(**post)
 
     def _get_available_dates(self, carrier):
         dates = []
@@ -66,3 +66,10 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
                 return res
 
         return super(WebsiteSaleDeliveryBooking, self).checkout(**post)
+
+    @http.route(['/shop/confirm_order'], type='http', auth="public", website=True, sitemap=False)
+    def confirm_order(self, **post):
+        order = request.website.sale_get_order()
+        if order.carrier_id and order.carrier_id.enable_delivery_date_selection and not order.delivery_booking_date:
+            return request.redirect("/shop/checkout?carrier_booking_error=1")
+        return super(WebsiteSaleDeliveryBooking, self).confirm_order(**post)
