@@ -10,7 +10,7 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
 
     @http.route(['/shop/payment'], type='http', auth="public", website=True)
     def payment(self, **post):
-        res = super(WebsiteSaleDeliveryBooking, self).payment(**post)
+        res = request.super(WebsiteSaleDeliveryBooking, self).payment(**post)
         order = request.website.sale_get_order()
         if order and order.carrier_id:
             carrier = order.carrier_id
