@@ -3,8 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - your-feature-branch
-
+      - feature/delivery-booking
+      - main
 jobs:
   deploy:
     runs-on: self-hosted # Use the self-hosted runner
