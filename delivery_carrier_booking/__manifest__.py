@@ -2,6 +2,8 @@
     'name': 'Delivery Carrier Booking',
     'version': '17.0.1.0.0',
     'license': 'LGPL-3',
+    'installable': True,
+    'auto_install': False,
     'depends': ['website_sale', 'delivery'],
     'data': [
         'security/ir.model.access.csv',
