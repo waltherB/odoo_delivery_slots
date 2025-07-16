@@ -1,5 +1,5 @@
 <template id="checkout_delivery_booking" inherit_id="website_sale.checkout">
-    <xpath expr="//div[contains(@class, 'o_wsale_checkout_shipping_billing')]" position="after">
+    <xpath expr="//form[@action='/shop/confirm_order']" position="inside">
         <div class="js_delivery_booking" t-if="website_sale_order and website_sale_order.carrier_id and website_sale_order.carrier_id.enable_delivery_date_selection">
             <div class="card mb-3">
                 <div class="card-header">

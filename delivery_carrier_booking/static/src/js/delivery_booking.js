@@ -24,11 +24,25 @@ document.addEventListener('DOMContentLoaded', function() {
     deliveryTimeSlotSelect.addEventListener('change', saveDeliveryBooking);
     deliveryDateSelect.addEventListener('change', saveDeliveryBooking);
 
+    // Listen for delivery method changes
+    listenForDeliveryMethodChanges();
+
     // Validate before payment
     validatePaymentForm();
 
     function getCarrierId() {
-        const carrierInput = document.querySelector('input[name="carrier_id"]');
+        // Try multiple ways to get carrier ID
+        let carrierInput = document.querySelector('input[name="carrier_id"]:checked');
+        if (!carrierInput) {
+            carrierInput = document.querySelector('input[name="carrier_id"]');
+        }
+        if (!carrierInput) {
+            // Try to get from delivery method selection
+            const deliveryRadio = document.querySelector('input[name="delivery_type"]:checked');
+            if (deliveryRadio) {
+                return deliveryRadio.value;
+            }
+        }
         return carrierInput ? carrierInput.value : null;
     }
 
@@ -115,6 +129,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 ${deliveryDate} at ${deliveryTimeSlot}
             `;
         }
+    }
+
+    function listenForDeliveryMethodChanges() {
+        const deliveryInputs = document.querySelectorAll('input[name="carrier_id"], input[name="delivery_type"]');
+        deliveryInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                // Reset booking selections when delivery method changes
+                if (deliveryDateSelect) deliveryDateSelect.value = '';
+                if (deliveryTimeSlotSelect) clearTimeSlots();
+                
+                // Show/hide booking section based on carrier settings
+                const bookingSection = document.querySelector('.js_delivery_booking');
+                if (bookingSection) {
+                    // This will be handled by the template condition, but we can add dynamic behavior here
+                    setTimeout(() => {
+                        // Reload the page to update the booking section visibility
+                        // In a more advanced implementation, this could be done via AJAX
+                    }, 100);
+                }
+            });
+        });
     }
 
     function validatePaymentForm() {

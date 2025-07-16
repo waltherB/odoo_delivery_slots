@@ -18,7 +18,7 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
 
     def _get_available_dates(self, carrier):
         dates = []
-        start_date = date.today() + timedelta(days=carrier.start_delivery_after_days)
+        start_date = date.today() + timedelta(days=carrier.start_delivery_after_days or 0)
         for i in range(30): # Show 30 days
             current_date = start_date + timedelta(days=i)
             if str(current_date.weekday()) in carrier.booking_slot_ids.mapped('weekday'):
@@ -35,11 +35,19 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
         weekday = str(selected_date.weekday())
         slots = carrier.booking_slot_ids.filtered(lambda s: s.weekday == weekday)
         time_slots = []
+        interval_hours = (carrier.time_slot_interval or 60) / 60.0
+        
         for slot in slots:
             current_time = slot.opening_hour
-            while current_time < slot.closing_hour:
-                time_slots.append(f"{int(current_time)}:00 - {int(current_time + carrier.time_slot_interval / 60)}:00")
-                current_time += carrier.time_slot_interval / 60
+            while current_time + interval_hours <= slot.closing_hour:
+                start_hour = int(current_time)
+                start_min = int((current_time - start_hour) * 60)
+                end_time = current_time + interval_hours
+                end_hour = int(end_time)
+                end_min = int((end_time - end_hour) * 60)
+                
+                time_slots.append(f"{start_hour:02d}:{start_min:02d} - {end_hour:02d}:{end_min:02d}")
+                current_time += interval_hours
         return {'time_slots': time_slots}
 
     @http.route(['/shop/set_delivery_booking'], type='json', auth="public", website=True)

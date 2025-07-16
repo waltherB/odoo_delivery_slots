@@ -8,6 +8,9 @@
         'views/sale_order_views.xml',
         'views/website_sale_templates.xml',
     ],
+    'demo': [
+        'demo/demo.xml',
+    ],
     'assets': {
         'web.assets_frontend': [
             'delivery_carrier_booking/static/src/js/delivery_booking.js',
