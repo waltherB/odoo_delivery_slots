@@ -63,7 +63,7 @@
 
     <!-- Also add delivery booking to checkout page for better UX -->
     <template id="checkout_delivery_booking" inherit_id="website_sale.checkout">
-        <xpath expr="//div[@id='delivery_carrier']" position="after">
+        <xpath expr="//div[hasclass('oe_website_sale_tx_carrier')]" position="after">
             <div class="js_delivery_booking" t-if="website_sale_order and website_sale_order.carrier_id and website_sale_order.carrier_id.enable_delivery_date_selection">
                 <div class="card mb-3">
                     <div class="card-header">
