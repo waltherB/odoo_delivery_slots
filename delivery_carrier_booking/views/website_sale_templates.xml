@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="checkout_delivery_booking" inherit_id="website_sale.checkout_layout">
-        <xpath expr="//div[hasclass('container')]" position="inside">
+    <template id="checkout_delivery_booking" inherit_id="website_sale.checkout">
+        <xpath expr="//div[@id='wrap']" position="inside">
             <div class="js_delivery_booking" t-if="website_sale_order and website_sale_order.carrier_id and website_sale_order.carrier_id.enable_delivery_date_selection">
                 <div class="card mb-3">
                     <div class="card-header">
@@ -51,7 +51,7 @@
     </template>
 
     <template id="payment_delivery_booking" inherit_id="website_sale.payment">
-        <xpath expr="//div[hasclass('container')]" position="inside">
+        <xpath expr="//div[@id='wrap']" position="inside">
             <div class="js_delivery_booking" t-if="website_sale_order and website_sale_order.carrier_id and website_sale_order.carrier_id.enable_delivery_date_selection">
                 <div class="card mb-3">
                     <div class="card-header">
