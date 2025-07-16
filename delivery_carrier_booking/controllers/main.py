@@ -93,14 +93,4 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
 
         return result
 
-    @http.route(['/shop/payment'], type='http', auth="public", website=True, sitemap=False)
-    def payment(self, **post):
-        result = super(WebsiteSaleDeliveryBooking, self).payment(**post)
-        
-        # Add delivery dates to context for payment page
-        if hasattr(result, 'qcontext'):
-            order = request.website.sale_get_order()
-            if order and order.carrier_id and order.carrier_id.enable_delivery_date_selection:
-                result.qcontext['delivery_dates'] = self._get_available_dates(order.carrier_id)
-        
-        return result
+
