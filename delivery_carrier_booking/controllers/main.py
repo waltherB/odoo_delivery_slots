@@ -93,15 +93,14 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
 
         return result
 
-    # Override the shop method to add delivery dates context to payment page
-    @http.route()
-    def shop(self, page=0, category=None, search='', min_price=0.0, max_price=0.0, ppg=False, **post):
-        result = super(WebsiteSaleDeliveryBooking, self).shop(page, category, search, min_price, max_price, ppg, **post)
-
-        # Add delivery dates to context if on payment-related pages
+    @http.route(['/shop/payment'], type='http', auth="public", website=True, sitemap=False)
+    def payment(self, **post):
+        result = super(WebsiteSaleDeliveryBooking, self).payment(**post)
+        
+        # Add delivery dates to context for payment page
         if hasattr(result, 'qcontext'):
             order = request.website.sale_get_order()
             if order and order.carrier_id and order.carrier_id.enable_delivery_date_selection:
                 result.qcontext['delivery_dates'] = self._get_available_dates(order.carrier_id)
-
+        
         return result

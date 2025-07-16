@@ -43,6 +43,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 return deliveryRadio.value;
             }
         }
+        if (!carrierInput) {
+            // Try to get from order data if available
+            const orderData = document.querySelector('[data-carrier-id]');
+            if (orderData) {
+                return orderData.getAttribute('data-carrier-id');
+            }
+        }
         return carrierInput ? carrierInput.value : null;
     }
 
