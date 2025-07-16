@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <!-- Demo data for delivery.carrier -->
+        <record id="delivery_carrier_booking_demo" model="delivery.carrier">
+            <field name="name">Delivery with Booking</field>
+            <field name="product_id" ref="delivery.product_product_delivery"/>
+            <field name="enable_delivery_date_selection">True</field>
+            <field name="enable_delivery_time_slot_selection">True</field>
+            <field name="start_delivery_after_days">1</field>
+            <field name="time_slot_interval">60</field>
+            <field name="max_orders_per_slot">5</field>
+            <field name="booking_slot_ids" eval="[(0, 0, {'weekday': '0', 'opening_hour': 9.0, 'closing_hour': 12.0}),
+                                                 (0, 0, {'weekday': '0', 'opening_hour': 14.0, 'closing_hour': 18.0}),
+                                                 (0, 0, {'weekday': '1', 'opening_hour': 9.0, 'closing_hour': 17.0}),
+                                                 (0, 0, {'weekday': '2', 'opening_hour': 9.0, 'closing_hour': 17.0}),
+                                                 (0, 0, {'weekday': '3', 'opening_hour': 9.0, 'closing_hour': 17.0}),
+                                                 (0, 0, {'weekday': '4', 'opening_hour': 9.0, 'closing_hour': 17.0})]"/>
+        </record>
+    </data>
+</odoo>
