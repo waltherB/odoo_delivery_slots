@@ -20,12 +20,22 @@
                             <field name="max_orders_per_slot"/>
                         </group>
                     </group>
-                    <field name="booking_slot_ids">
+                    <div class="alert alert-info" role="alert" attrs="{'invisible': [('id', '!=', False)]}">
+                        Please save the delivery method first before adding time schedules.
+                    </div>
+                    <field name="booking_slot_ids" attrs="{'readonly': [('id', '=', False)]}">
                         <tree editable="bottom">
                             <field name="weekday"/>
                             <field name="opening_hour" widget="float_time"/>
                             <field name="closing_hour" widget="float_time"/>
                         </tree>
+                        <form>
+                            <group>
+                                <field name="weekday"/>
+                                <field name="opening_hour" widget="float_time"/>
+                                <field name="closing_hour" widget="float_time"/>
+                            </group>
+                        </form>
                     </field>
                 </page>
             </xpath>

@@ -34,10 +34,16 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
         selected_date = date.fromisoformat(delivery_date)
         weekday = str(selected_date.weekday())
         slots = carrier.booking_slot_ids.filtered(lambda s: s.weekday == weekday)
+        
+        # Debug info
+        print(f"Selected date: {selected_date}, weekday: {weekday}")
+        print(f"Found slots: {len(slots)}, carrier: {carrier.name}")
+        
         time_slots = []
         interval_hours = (carrier.time_slot_interval or 60) / 60.0
         
         for slot in slots:
+            print(f"Processing slot: {slot.weekday}, {slot.opening_hour} - {slot.closing_hour}")
             current_time = slot.opening_hour
             while current_time + interval_hours <= slot.closing_hour:
                 start_hour = int(current_time)
@@ -46,8 +52,12 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
                 end_hour = int(end_time)
                 end_min = int((end_time - end_hour) * 60)
                 
-                time_slots.append(f"{start_hour:02d}:{start_min:02d} - {end_hour:02d}:{end_min:02d}")
+                time_slot = f"{start_hour:02d}:{start_min:02d} - {end_hour:02d}:{end_min:02d}"
+                time_slots.append(time_slot)
+                print(f"Added time slot: {time_slot}")
                 current_time += interval_hours
+                
+        print(f"Returning time slots: {time_slots}")
         return {'time_slots': time_slots}
 
     @http.route(['/shop/set_delivery_booking'], type='json', auth="public", website=True)
@@ -80,17 +90,26 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
     def confirm_order(self, **post):
         order = request.website.sale_get_order()
         if order.carrier_id and order.carrier_id.enable_delivery_date_selection and not order.delivery_booking_date:
-            return request.redirect("/shop/checkout?carrier_booking_error=1")
+            return request.redirect("/shop/payment?carrier_booking_error=1")
 
         # Add delivery booking data to context for payment page
         result = super(WebsiteSaleDeliveryBooking, self).confirm_order(**post)
 
-        # If this is a redirect to payment page, add delivery dates to context
-        if hasattr(result, 'qcontext') and order and order.carrier_id:
-            carrier = order.carrier_id
-            if carrier.enable_delivery_date_selection:
-                result.qcontext['delivery_dates'] = self._get_available_dates(carrier)
-
+        return result
+        
+    @http.route(['/shop/payment'], type='http', auth="public", website=True, sitemap=False)
+    def payment(self, **post):
+        if post.get('carrier_booking_error'):
+            post['carrier_booking_error'] = 'Please select a delivery date for your booking.'
+            
+        result = super(WebsiteSaleDeliveryBooking, self).payment(**post)
+        
+        # Add delivery dates to context for payment page
+        if hasattr(result, 'qcontext'):
+            order = request.website.sale_get_order()
+            if order and order.carrier_id and order.carrier_id.enable_delivery_date_selection:
+                result.qcontext['delivery_dates'] = self._get_available_dates(order.carrier_id)
+        
         return result
 
 
