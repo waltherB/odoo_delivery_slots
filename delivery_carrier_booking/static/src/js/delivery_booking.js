@@ -142,21 +142,80 @@ document.addEventListener('DOMContentLoaded', function() {
         const deliveryInputs = document.querySelectorAll('input[name="carrier_id"], input[name="delivery_type"]');
         deliveryInputs.forEach(input => {
             input.addEventListener('change', function() {
+                const carrierId = this.value;
+                
                 // Reset booking selections when delivery method changes
                 if (deliveryDateSelect) deliveryDateSelect.value = '';
                 if (deliveryTimeSlotSelect) clearTimeSlots();
                 
-                // Show/hide booking section based on carrier settings
-                const bookingSection = document.querySelector('.js_delivery_booking');
-                if (bookingSection) {
-                    // This will be handled by the template condition, but we can add dynamic behavior here
-                    setTimeout(() => {
-                        // Reload the page to update the booking section visibility
-                        // In a more advanced implementation, this could be done via AJAX
-                    }, 100);
-                }
+                // Check if this carrier has booking enabled and show/hide section
+                updateCarrierBookingVisibility(carrierId);
             });
         });
+    }
+
+    function updateCarrierBookingVisibility(carrierId) {
+        if (!carrierId) {
+            hideBookingSection();
+            return;
+        }
+
+        fetch('/shop/update_carrier', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                method: 'call',
+                params: {
+                    carrier_id: carrierId
+                }
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.result && data.result.booking_enabled) {
+                showBookingSection();
+                // Load available dates for this carrier
+                if (data.result.delivery_dates) {
+                    updateDeliveryDates(data.result.delivery_dates);
+                }
+            } else {
+                hideBookingSection();
+            }
+        })
+        .catch(error => {
+            console.error('Error updating carrier:', error);
+            hideBookingSection();
+        });
+    }
+
+    function showBookingSection() {
+        const bookingSection = document.querySelector('.js_delivery_booking');
+        if (bookingSection) {
+            bookingSection.style.display = 'block';
+        }
+    }
+
+    function hideBookingSection() {
+        const bookingSection = document.querySelector('.js_delivery_booking');
+        if (bookingSection) {
+            bookingSection.style.display = 'none';
+        }
+    }
+
+    function updateDeliveryDates(dates) {
+        if (deliveryDateSelect) {
+            deliveryDateSelect.innerHTML = '<option value="">Select delivery date...</option>';
+            dates.forEach(function(dateOption) {
+                const option = document.createElement('option');
+                option.value = dateOption.value;
+                option.textContent = dateOption.label;
+                deliveryDateSelect.appendChild(option);
+            });
+        }
     }
 
     function validatePaymentForm() {

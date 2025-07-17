@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="payment_delivery_booking" inherit_id="website_sale.payment">
-        <xpath expr="//div[@id='delivery_carrier']" position="after">
-            <div class="js_delivery_booking" t-if="website_sale_order and website_sale_order.carrier_id and website_sale_order.carrier_id.enable_delivery_date_selection">
+        <xpath expr="//div[hasclass('o_payment_form')]" position="before">
+            <div class="js_delivery_booking" style="display: none;" t-if="website_sale_order and website_sale_order.carrier_id and website_sale_order.carrier_id.enable_delivery_date_selection">
                 <div class="card mb-3">
                     <div class="card-header">
                         <h5 class="mb-0">

@@ -70,6 +70,22 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
             })
         return {}
 
+    @http.route(['/shop/update_carrier'], type='json', auth="public", website=True)
+    def update_carrier(self, carrier_id, **post):
+        carrier = request.env['delivery.carrier'].browse(int(carrier_id))
+        if not carrier:
+            return {'booking_enabled': False}
+        
+        result = {
+            'booking_enabled': carrier.enable_delivery_date_selection,
+            'delivery_dates': []
+        }
+        
+        if carrier.enable_delivery_date_selection:
+            result['delivery_dates'] = self._get_available_dates(carrier)
+            
+        return result
+
     @http.route(['/shop/checkout'], type='http', auth='public', website=True, sitemap=False)
     def checkout(self, **post):
         if post.get('carrier_booking_error'):
