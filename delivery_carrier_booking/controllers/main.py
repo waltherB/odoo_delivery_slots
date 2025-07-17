@@ -70,8 +70,8 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
             })
         return {}
 
-    @http.route(['/shop/update_carrier'], type='json', auth="public", website=True)
-    def update_carrier(self, carrier_id, **post):
+    @http.route(['/shop/update_carrier_booking'], type='json', auth="public", website=True)
+    def update_carrier_booking(self, carrier_id, **post):
         carrier = request.env['delivery.carrier'].browse(int(carrier_id))
         if not carrier:
             return {'booking_enabled': False}
