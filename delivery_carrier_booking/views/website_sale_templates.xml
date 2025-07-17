@@ -1,53 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="payment_delivery_booking" inherit_id="website_sale.payment">
-        <xpath expr="//main" position="inside">
-            <div class="js_delivery_booking" style="display: none;" t-if="website_sale_order and website_sale_order.carrier_id and website_sale_order.carrier_id.enable_delivery_date_selection">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fa fa-calendar me-2"/>
-                            Schedule Your Delivery
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="delivery_date" class="form-label">Delivery Date <span class="text-danger">*</span>
-                                    </label>
-                                    <select id="delivery_date" name="delivery_date" class="form-control" required="required">
-                                        <option value="">Select delivery date...</option>
-                                        <t t-foreach="delivery_dates or []" t-as="date_option">
-                                            <option t-att-value="date_option['value']" t-att-selected="'selected' if website_sale_order.delivery_booking_date == date_option['value'] else None">
-                                                <t t-esc="date_option['label']"/>
-                                            </option>
-                                        </t>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="delivery_time_slot" class="form-label">Time Slot <span class="text-danger">*</span>
-                                    </label>
-                                    <select id="delivery_time_slot" name="delivery_time_slot" class="form-control" required="required">
-                                        <option value="">Select time slot...</option>
-                                        <option t-if="website_sale_order.delivery_booking_slot" t-att-value="website_sale_order.delivery_booking_slot" selected="selected">
-                                            <t t-esc="website_sale_order.delivery_booking_slot"/>
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="alert alert-warning" t-if="carrier_booking_error">
-                            <i class="fa fa-warning me-2"/>
-                            <t t-esc="carrier_booking_error"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </xpath>
-    </template>
-
-
+    <!-- Remove the problematic payment template for now -->
+    <!-- We'll add the booking section via JavaScript injection instead -->
 </odoo> 

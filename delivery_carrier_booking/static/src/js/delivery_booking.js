@@ -1,6 +1,11 @@
 /** @odoo-module **/
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the payment page
+    if (window.location.pathname.includes('/shop/payment')) {
+        initializePaymentPageBooking();
+    }
+    
     const deliveryDateSelect = document.getElementById('delivery_date');
     const deliveryTimeSlotSelect = document.getElementById('delivery_time_slot');
 
@@ -235,5 +240,91 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+    }
+
+    function initializePaymentPageBooking() {
+        // Create the booking section HTML
+        const bookingHTML = `
+            <div class="js_delivery_booking" style="display: none;">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fa fa-calendar me-2"></i>
+                            Schedule Your Delivery
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="delivery_date" class="form-label">Delivery Date <span class="text-danger">*</span></label>
+                                    <select id="delivery_date" name="delivery_date" class="form-control" required="required">
+                                        <option value="">Select delivery date...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="delivery_time_slot" class="form-label">Time Slot <span class="text-danger">*</span></label>
+                                    <select id="delivery_time_slot" name="delivery_time_slot" class="form-control" required="required">
+                                        <option value="">Select time slot...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning" id="carrier_booking_error" style="display: none;">
+                            <i class="fa fa-warning me-2"></i>
+                            <span id="booking_error_message"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Find a suitable place to inject the booking section
+        const targetElement = document.querySelector('main') || 
+                             document.querySelector('.container') || 
+                             document.querySelector('body');
+
+        if (targetElement) {
+            // Insert the booking section at the beginning of the target element
+            targetElement.insertAdjacentHTML('afterbegin', bookingHTML);
+            
+            // Initialize the booking functionality after injection
+            setTimeout(() => {
+                initializeBookingFunctionality();
+            }, 100);
+        }
+    }
+
+    function initializeBookingFunctionality() {
+        const deliveryDateSelect = document.getElementById('delivery_date');
+        const deliveryTimeSlotSelect = document.getElementById('delivery_time_slot');
+
+        if (deliveryDateSelect && deliveryTimeSlotSelect) {
+            // Set up event listeners for the injected elements
+            deliveryDateSelect.addEventListener('change', function() {
+                const selectedDate = this.value;
+                const carrierId = getCarrierId();
+
+                if (selectedDate && carrierId) {
+                    loadTimeSlots(selectedDate, carrierId);
+                } else {
+                    clearTimeSlots();
+                }
+            });
+
+            deliveryTimeSlotSelect.addEventListener('change', saveDeliveryBooking);
+            deliveryDateSelect.addEventListener('change', saveDeliveryBooking);
+
+            // Listen for delivery method changes
+            listenForDeliveryMethodChanges();
+
+            // Check initial carrier state
+            const initialCarrierId = getCarrierId();
+            if (initialCarrierId) {
+                updateCarrierBookingVisibility(initialCarrierId);
+            }
+        }
     }
 });
