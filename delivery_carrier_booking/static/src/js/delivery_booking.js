@@ -293,7 +293,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         paymentForms.forEach(form => {
             form.addEventListener('submit', function(e) {
-                if (deliveryDateSelect && deliveryTimeSlotSelect) {
+                const bookingSection = document.querySelector('.js_delivery_booking');
+                const deliveryDateSelect = document.getElementById('delivery_date');
+                const deliveryTimeSlotSelect = document.getElementById('delivery_time_slot');
+                
+                // Only validate if booking section is visible
+                if (bookingSection && bookingSection.style.display !== 'none' && 
+                    deliveryDateSelect && deliveryTimeSlotSelect) {
+                    
                     const deliveryDate = deliveryDateSelect.value;
                     const deliveryTimeSlot = deliveryTimeSlotSelect.value;
 
@@ -321,7 +328,29 @@ document.addEventListener('DOMContentLoaded', function() {
     function initializePaymentPageBooking() {
         console.log('Initializing payment page booking...');
         
-        // Create the booking section HTML
+        // Wait for page to be fully loaded
+        setTimeout(() => {
+            injectBookingSection();
+        }, 1000);
+        
+        // Also listen for any dynamic content changes
+        const observer = new MutationObserver(() => {
+            if (!document.querySelector('.js_delivery_booking')) {
+                injectBookingSection();
+            }
+        });
+        
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+    
+    function injectBookingSection() {
+        // Don't inject if already exists
+        if (document.querySelector('.js_delivery_booking')) {
+            console.log('Booking section already exists');
+            return;
+        }
+        
+        // Create the booking section HTML (without required attributes initially)
         const bookingHTML = `
             <div class="js_delivery_booking" style="display: none; margin: 20px 0;">
                 <div class="card mb-3">
@@ -336,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label for="delivery_date" class="form-label">Delivery Date <span class="text-danger">*</span></label>
-                                    <select id="delivery_date" name="delivery_date" class="form-control" required="required">
+                                    <select id="delivery_date" name="delivery_date" class="form-control">
                                         <option value="">Select delivery date...</option>
                                     </select>
                                 </div>
@@ -344,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label for="delivery_time_slot" class="form-label">Time Slot <span class="text-danger">*</span></label>
-                                    <select id="delivery_time_slot" name="delivery_time_slot" class="form-control" required="required">
+                                    <select id="delivery_time_slot" name="delivery_time_slot" class="form-control">
                                         <option value="">Select time slot...</option>
                                     </select>
                                 </div>
@@ -373,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Initialize the booking functionality after injection
             setTimeout(() => {
                 initializeBookingFunctionality();
-            }, 500);
+            }, 100);
         } else {
             console.error('Could not find target element for booking injection');
         }
