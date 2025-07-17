@@ -1,9 +1,10 @@
 /** @odoo-module **/
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on the payment page
+    // Check if we're on the payment page and inject booking section
     if (window.location.pathname.includes('/shop/payment')) {
         initializePaymentPageBooking();
+        return; // Exit early for payment page as elements will be injected
     }
     
     const deliveryDateSelect = document.getElementById('delivery_date');
@@ -36,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
     validatePaymentForm();
 
     function getCarrierId() {
-        // Try multiple ways to get carrier ID
+        // Try multiple ways to get carrier ID on payment page
         let carrierInput = document.querySelector('input[name="carrier_id"]:checked');
         if (!carrierInput) {
             carrierInput = document.querySelector('input[name="carrier_id"]');
@@ -55,6 +56,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 return orderData.getAttribute('data-carrier-id');
             }
         }
+        if (!carrierInput) {
+            // Try to get from selected delivery option on payment page
+            const selectedDelivery = document.querySelector('.o_delivery_carrier_select input:checked');
+            if (selectedDelivery) {
+                return selectedDelivery.value;
+            }
+        }
+        if (!carrierInput) {
+            // Try different selectors for delivery methods
+            const deliveryOptions = document.querySelectorAll('input[type="radio"]:checked');
+            for (let option of deliveryOptions) {
+                if (option.name.includes('carrier') || option.name.includes('delivery')) {
+                    return option.value;
+                }
+            }
+        }
+        
+        console.log('Carrier input found:', carrierInput);
         return carrierInput ? carrierInput.value : null;
     }
 
@@ -144,23 +163,62 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function listenForDeliveryMethodChanges() {
-        const deliveryInputs = document.querySelectorAll('input[name="carrier_id"], input[name="delivery_type"]');
-        deliveryInputs.forEach(input => {
-            input.addEventListener('change', function() {
-                const carrierId = this.value;
-                
-                // Reset booking selections when delivery method changes
-                if (deliveryDateSelect) deliveryDateSelect.value = '';
-                if (deliveryTimeSlotSelect) clearTimeSlots();
-                
-                // Check if this carrier has booking enabled and show/hide section
-                updateCarrierBookingVisibility(carrierId);
+        // Listen for all possible delivery method selectors
+        const selectors = [
+            'input[name="carrier_id"]',
+            'input[name="delivery_type"]',
+            'input[type="radio"]',
+            '.o_delivery_carrier_select input'
+        ];
+        
+        selectors.forEach(selector => {
+            const deliveryInputs = document.querySelectorAll(selector);
+            deliveryInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    console.log('Delivery method changed:', this.name, this.value);
+                    const carrierId = this.value;
+                    
+                    // Reset booking selections when delivery method changes
+                    const deliveryDateSelect = document.getElementById('delivery_date');
+                    const deliveryTimeSlotSelect = document.getElementById('delivery_time_slot');
+                    
+                    if (deliveryDateSelect) deliveryDateSelect.value = '';
+                    if (deliveryTimeSlotSelect) window.clearTimeSlots();
+                    
+                    // Check if this carrier has booking enabled and show/hide section
+                    window.updateCarrierBookingVisibility(carrierId);
+                });
             });
+        });
+        
+        // Also listen for any radio button changes as a fallback
+        document.addEventListener('change', function(e) {
+            if (e.target.type === 'radio' && (
+                e.target.name.includes('carrier') || 
+                e.target.name.includes('delivery') ||
+                e.target.classList.contains('o_delivery_carrier')
+            )) {
+                console.log('Generic delivery method change detected:', e.target.name, e.target.value);
+                const carrierId = e.target.value;
+                
+                // Reset booking selections
+                const deliveryDateSelect = document.getElementById('delivery_date');
+                const deliveryTimeSlotSelect = document.getElementById('delivery_time_slot');
+                
+                if (deliveryDateSelect) deliveryDateSelect.value = '';
+                if (deliveryTimeSlotSelect) window.clearTimeSlots();
+                
+                // Check if this carrier has booking enabled
+                window.updateCarrierBookingVisibility(carrierId);
+            }
         });
     }
 
     function updateCarrierBookingVisibility(carrierId) {
+        console.log('Updating carrier booking visibility for carrier:', carrierId);
+        
         if (!carrierId) {
+            console.log('No carrier ID, hiding booking section');
             hideBookingSection();
             return;
         }
@@ -181,13 +239,20 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
+            console.log('Carrier update response:', data);
+            
             if (data.result && data.result.booking_enabled) {
+                console.log('Booking enabled, showing section');
                 showBookingSection();
                 // Load available dates for this carrier
                 if (data.result.delivery_dates) {
+                    console.log('Loading delivery dates:', data.result.delivery_dates);
                     updateDeliveryDates(data.result.delivery_dates);
+                } else {
+                    console.log('No delivery dates in response');
                 }
             } else {
+                console.log('Booking not enabled, hiding section');
                 hideBookingSection();
             }
         })
@@ -242,10 +307,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Move all functions to global scope so they can be accessed from anywhere
+    window.getCarrierId = getCarrierId;
+    window.loadTimeSlots = loadTimeSlots;
+    window.clearTimeSlots = clearTimeSlots;
+    window.saveDeliveryBooking = saveDeliveryBooking;
+    window.updateCarrierBookingVisibility = updateCarrierBookingVisibility;
+    window.showBookingSection = showBookingSection;
+    window.hideBookingSection = hideBookingSection;
+    window.updateDeliveryDates = updateDeliveryDates;
+    window.listenForDeliveryMethodChanges = listenForDeliveryMethodChanges;
+
     function initializePaymentPageBooking() {
+        console.log('Initializing payment page booking...');
+        
         // Create the booking section HTML
         const bookingHTML = `
-            <div class="js_delivery_booking" style="display: none;">
+            <div class="js_delivery_booking" style="display: none; margin: 20px 0;">
                 <div class="card mb-3">
                     <div class="card-header">
                         <h5 class="mb-0">
@@ -281,50 +359,62 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        // Find a suitable place to inject the booking section
-        const targetElement = document.querySelector('main') || 
-                             document.querySelector('.container') || 
-                             document.querySelector('body');
+        // Find a suitable place to inject the booking section - try multiple locations
+        let targetElement = document.querySelector('.container .row') || 
+                           document.querySelector('.container') || 
+                           document.querySelector('main') || 
+                           document.querySelector('body');
 
         if (targetElement) {
+            console.log('Injecting booking section into:', targetElement);
             // Insert the booking section at the beginning of the target element
             targetElement.insertAdjacentHTML('afterbegin', bookingHTML);
             
             // Initialize the booking functionality after injection
             setTimeout(() => {
                 initializeBookingFunctionality();
-            }, 100);
+            }, 500);
+        } else {
+            console.error('Could not find target element for booking injection');
         }
     }
 
     function initializeBookingFunctionality() {
+        console.log('Setting up booking functionality...');
+        
         const deliveryDateSelect = document.getElementById('delivery_date');
         const deliveryTimeSlotSelect = document.getElementById('delivery_time_slot');
 
         if (deliveryDateSelect && deliveryTimeSlotSelect) {
+            console.log('Found booking elements, setting up listeners...');
+            
             // Set up event listeners for the injected elements
             deliveryDateSelect.addEventListener('change', function() {
                 const selectedDate = this.value;
-                const carrierId = getCarrierId();
+                const carrierId = window.getCarrierId();
+                console.log('Date changed:', selectedDate, 'Carrier:', carrierId);
 
                 if (selectedDate && carrierId) {
-                    loadTimeSlots(selectedDate, carrierId);
+                    window.loadTimeSlots(selectedDate, carrierId);
                 } else {
-                    clearTimeSlots();
+                    window.clearTimeSlots();
                 }
             });
 
-            deliveryTimeSlotSelect.addEventListener('change', saveDeliveryBooking);
-            deliveryDateSelect.addEventListener('change', saveDeliveryBooking);
+            deliveryTimeSlotSelect.addEventListener('change', window.saveDeliveryBooking);
+            deliveryDateSelect.addEventListener('change', window.saveDeliveryBooking);
 
             // Listen for delivery method changes
-            listenForDeliveryMethodChanges();
+            window.listenForDeliveryMethodChanges();
 
             // Check initial carrier state
-            const initialCarrierId = getCarrierId();
+            const initialCarrierId = window.getCarrierId();
+            console.log('Initial carrier ID:', initialCarrierId);
             if (initialCarrierId) {
-                updateCarrierBookingVisibility(initialCarrierId);
+                window.updateCarrierBookingVisibility(initialCarrierId);
             }
+        } else {
+            console.error('Could not find delivery booking elements');
         }
     }
 });
