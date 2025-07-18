@@ -26,14 +26,14 @@
                     <field name="booking_slot_ids" readonly="not id">
                         <tree editable="bottom">
                             <field name="weekday"/>
-                            <field name="opening_hour" widget="float_time" string="Opening Time"/>
-                            <field name="closing_hour" widget="float_time" string="Closing Time"/>
+                            <field name="opening_hour" widget="float_time" options="{'format': 'HH:mm'}" string="Opening Time"/>
+                            <field name="closing_hour" widget="float_time" options="{'format': 'HH:mm'}" string="Closing Time"/>
                         </tree>
                         <form>
                             <group>
                                 <field name="weekday"/>
-                                <field name="opening_hour" widget="float_time"/>
-                                <field name="closing_hour" widget="float_time"/>
+                                <field name="opening_hour" widget="float_time" options="{'format': 'HH:mm'}"/>
+                                <field name="closing_hour" widget="float_time" options="{'format': 'HH:mm'}"/>
                             </group>
                         </form>
                     </field>

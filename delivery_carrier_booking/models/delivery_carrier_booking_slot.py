@@ -16,8 +16,8 @@ class DeliveryCarrierBookingSlot(models.Model):
         ('5', 'Saturday'),
         ('6', 'Sunday'),
     ], string='Day of the Week', required=True)
-    opening_hour = fields.Float(string='Opening Hour')
-    closing_hour = fields.Float(string='Closing Hour')
+    opening_hour = fields.Float(string='Opening Hour', help='Opening hour in 24h format (e.g., 9.5 for 09:30)')
+    closing_hour = fields.Float(string='Closing Hour', help='Closing hour in 24h format (e.g., 17.5 for 17:30)')
 
     _sql_constraints = [
         ('opening_hour_check', 'CHECK(opening_hour >= 0 and opening_hour <= 24)', 'Opening hour must be between 0 and 24.'),

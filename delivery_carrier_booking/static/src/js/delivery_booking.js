@@ -5,7 +5,7 @@ import publicWidget from "@web/legacy/js/public/public_widget";
 
 // Create a new widget for delivery booking
 publicWidget.registry.DeliveryBooking = publicWidget.Widget.extend({
-    selector: '.oe_website_sale',
+    selector: 'body',
     events: {
         'change input[name="carrier_id"]': '_onCarrierChange',
         'change #delivery_date': '_onDeliveryDateChange',
@@ -14,8 +14,41 @@ publicWidget.registry.DeliveryBooking = publicWidget.Widget.extend({
 
     start() {
         this._super(...arguments);
-        this._injectBookingSection();
-        this._checkInitialCarrier();
+        
+        // Only initialize on payment page
+        if (window.location.pathname.includes('/shop/payment')) {
+            console.log('Initializing delivery booking on payment page');
+            
+            // Wait a bit for the page to fully load
+            setTimeout(() => {
+                this._injectBookingSection();
+                this._setupGlobalEventListeners();
+                this._checkInitialCarrier();
+            }, 1000);
+        }
+    },
+
+    _setupGlobalEventListeners() {
+        // Listen for any carrier changes globally
+        document.addEventListener('change', (e) => {
+            if (e.target.name === 'carrier_id' || 
+                e.target.name === 'delivery_type' ||
+                (e.target.type === 'radio' && e.target.name.includes('carrier'))) {
+                console.log('Global carrier change detected:', e.target.name, e.target.value);
+                this._updateBookingVisibility(e.target.value);
+            }
+        });
+        
+        // Also listen for clicks on delivery options
+        document.addEventListener('click', (e) => {
+            if (e.target.type === 'radio' && 
+                (e.target.name === 'carrier_id' || e.target.name.includes('carrier'))) {
+                console.log('Carrier radio clicked:', e.target.value);
+                setTimeout(() => {
+                    this._updateBookingVisibility(e.target.value);
+                }, 100);
+            }
+        });
     },
 
     _onCarrierChange(ev) {
@@ -38,7 +71,23 @@ publicWidget.registry.DeliveryBooking = publicWidget.Widget.extend({
     },
 
     _getCurrentCarrierId() {
-        const checkedCarrier = this.el.querySelector('input[name="carrier_id"]:checked');
+        // Try multiple selectors to find the current carrier
+        let checkedCarrier = document.querySelector('input[name="carrier_id"]:checked');
+        if (!checkedCarrier) {
+            checkedCarrier = document.querySelector('input[name="delivery_type"]:checked');
+        }
+        if (!checkedCarrier) {
+            // Try to find any checked radio button that might be a carrier
+            const allRadios = document.querySelectorAll('input[type="radio"]:checked');
+            for (let radio of allRadios) {
+                if (radio.name.includes('carrier') || radio.name.includes('delivery')) {
+                    checkedCarrier = radio;
+                    break;
+                }
+            }
+        }
+        
+        console.log('Current carrier ID:', checkedCarrier ? checkedCarrier.value : 'none');
         return checkedCarrier ? checkedCarrier.value : null;
     },
 
