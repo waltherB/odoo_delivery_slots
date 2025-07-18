@@ -1,1 +1,1 @@
-console.log('TEST: Delivery booking JavaScript is loading!');
+console.log('TEST: Delivery booking module assets are loading correctly!');
