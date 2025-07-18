@@ -165,6 +165,15 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
                 if (e.target.value && carrierId) {
                     loadTimeSlots(e.target.value, carrierId);
                 }
+                // Save the selected date
+                saveDeliveryBooking();
+            }
+            
+            // Listen for time slot changes
+            if (e.target.id === 'delivery_time_slot') {
+                console.log('=== TIME SLOT CHANGED:', e.target.value, '===');
+                // Save the selected time slot
+                saveDeliveryBooking();
             }
         });
         
@@ -457,6 +466,64 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
             console.error('Error loading time slots:', error);
             timeSelect.innerHTML = '<option value="">Error loading slots</option>';
         });
+    }
+    
+    function saveDeliveryBooking() {
+        var dateSelect = document.querySelector('#delivery_date');
+        var timeSelect = document.querySelector('#delivery_time_slot');
+        
+        if (!dateSelect || !timeSelect) return;
+        
+        var selectedDate = dateSelect.value;
+        var selectedTimeSlot = timeSelect.value;
+        
+        // Only save if both date and time slot are selected
+        if (selectedDate && selectedTimeSlot) {
+            console.log('=== SAVING DELIVERY BOOKING:', selectedDate, selectedTimeSlot, '===');
+            
+            fetch('/shop/set_delivery_booking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'call',
+                    params: {
+                        delivery_date: selectedDate,
+                        delivery_time_slot: selectedTimeSlot
+                    }
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('=== DELIVERY BOOKING SAVED SUCCESSFULLY ===');
+                
+                // Show a confirmation message
+                var bookingSection = document.querySelector('.js_delivery_booking');
+                if (bookingSection) {
+                    var confirmationDiv = bookingSection.querySelector('.booking-confirmation');
+                    if (!confirmationDiv) {
+                        confirmationDiv = document.createElement('div');
+                        confirmationDiv.className = 'booking-confirmation alert alert-success mt-2';
+                        bookingSection.appendChild(confirmationDiv);
+                    }
+                    confirmationDiv.innerHTML = '<i class="fa fa-check"></i> Delivery scheduled for ' + 
+                                              dateSelect.options[dateSelect.selectedIndex].text + 
+                                              ' at ' + selectedTimeSlot;
+                    
+                    // Hide confirmation after 3 seconds
+                    setTimeout(function() {
+                        if (confirmationDiv) {
+                            confirmationDiv.style.display = 'none';
+                        }
+                    }, 3000);
+                }
+            })
+            .catch(error => {
+                console.error('=== ERROR SAVING DELIVERY BOOKING:', error, '===');
+            });
+        }
     }
     
 })();
