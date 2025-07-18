@@ -31,8 +31,8 @@
     // Get current language from Odoo
     function getCurrentLanguage() {
         // For testing: Force Danish if URL contains debug parameter
-        if (window.location.search.includes('lang=da') || window.location.search.includes('debug')) {
-            console.log('DEBUG: Forcing Danish language');
+        if (window.location.search.includes('lang=da')) {
+            console.log('DEBUG: Forcing Danish language via URL parameter');
             return 'da';
         }
         
@@ -86,8 +86,10 @@
         var translations = window.DeliveryBookingTranslations[lang] || window.DeliveryBookingTranslations['en'];
         var result = translations[key] || key;
         
-        // Always log for now to debug
-        console.log('Translation:', key, '->', result, '(lang:', lang, ')');
+        // Debug logging only when needed
+        if (window.location.search.includes('debug') || localStorage.getItem('delivery_booking_debug')) {
+            console.log('Translation:', key, '->', result, '(lang:', lang, ')');
+        }
         
         return result;
     };

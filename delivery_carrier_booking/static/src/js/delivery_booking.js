@@ -36,13 +36,9 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
         initDeliveryBooking();
     }
     
-    function injectBookingSection() {
-        if (document.querySelector('.js_delivery_booking')) {
-            console.log('=== BOOKING SECTION ALREADY EXISTS ===');
-            return;
-        }
-        
-        var bookingHTML = `
+    // Function to generate translated booking HTML
+    function generateBookingHTML() {
+        return `
             <div class="js_delivery_booking" style="display: none; margin: 15px 0;">
                 <div class="card">
                     <div class="card-header" style="background-color: #f8f9fa;">
@@ -74,6 +70,15 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
                 </div>
             </div>
         `;
+    }
+    
+    function injectBookingSection() {
+        if (document.querySelector('.js_delivery_booking')) {
+            console.log('=== BOOKING SECTION ALREADY EXISTS ===');
+            return;
+        }
+        
+        var bookingHTML = generateBookingHTML();
         
         // Find the delivery method section and inject after it
         var deliverySection = document.querySelector('div[name="delivery_method"]') ||
@@ -226,38 +231,7 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
             if (carrierContainer) {
                 console.log('=== FOUND CARRIER CONTAINER, INJECTING BOOKING SECTION ===');
                 // Inject booking section after the selected carrier
-                var bookingHTML = `
-                    <div class="js_delivery_booking" style="display: none; margin: 15px 0;">
-                        <div class="card">
-                            <div class="card-header" style="background-color: #f8f9fa;">
-                                <h6 class="mb-0">
-                                    <i class="fa fa-calendar me-2"></i>
-                                    Schedule Your Delivery
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="delivery_date" class="form-label">Delivery Date</label>
-                                            <select id="delivery_date" name="delivery_date" class="form-control">
-                                                <option value="">Select delivery date...</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="delivery_time_slot" class="form-label">Time Slot</label>
-                                            <select id="delivery_time_slot" name="delivery_time_slot" class="form-control">
-                                                <option value="">Select time slot...</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                var bookingHTML = generateBookingHTML();
                 
                 carrierContainer.insertAdjacentHTML('afterend', bookingHTML);
                 console.log('=== BOOKING SECTION REPOSITIONED AFTER SELECTED CARRIER ===');
@@ -283,38 +257,7 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
             
             if (fallbackContainer) {
                 console.log('=== FOUND FALLBACK CONTAINER, INJECTING BOOKING SECTION ===');
-                var bookingHTML = `
-                    <div class="js_delivery_booking" style="display: none; margin: 15px 0;">
-                        <div class="card">
-                            <div class="card-header" style="background-color: #f8f9fa;">
-                                <h6 class="mb-0">
-                                    <i class="fa fa-calendar me-2"></i>
-                                    Schedule Your Delivery
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="delivery_date" class="form-label">Delivery Date</label>
-                                            <select id="delivery_date" name="delivery_date" class="form-control">
-                                                <option value="">Select delivery date...</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="delivery_time_slot" class="form-label">Time Slot</label>
-                                            <select id="delivery_time_slot" name="delivery_time_slot" class="form-control">
-                                                <option value="">Select time slot...</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                var bookingHTML = generateBookingHTML();
                 
                 fallbackContainer.insertAdjacentHTML('afterend', bookingHTML);
                 console.log('=== BOOKING SECTION INJECTED VIA FALLBACK ===');

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from odoo import http
+from odoo import http, _
 from odoo.http import request
 from odoo.addons.website_sale.controllers.main import WebsiteSale
 import json
 from datetime import date, timedelta
+import babel.dates
 
 class WebsiteSaleDeliveryBooking(WebsiteSale):
 
@@ -19,10 +20,29 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
     def _get_available_dates(self, carrier):
         dates = []
         start_date = date.today() + timedelta(days=carrier.start_delivery_after_days or 0)
+        
+        # Get user's language for proper date formatting
+        user_lang = request.env.user.lang or 'en_US'
+        locale = user_lang.replace('_', '-').lower()
+        
         for i in range(30): # Show 30 days
             current_date = start_date + timedelta(days=i)
             if str(current_date.weekday()) in carrier.booking_slot_ids.mapped('weekday'):
-                dates.append({'value': current_date.isoformat(), 'label': current_date.strftime('%A, %d %B %Y')})
+                try:
+                    # Use Babel for proper localized date formatting
+                    formatted_date = babel.dates.format_date(
+                        current_date, 
+                        format='full', 
+                        locale=locale
+                    )
+                except:
+                    # Fallback to English if locale not available
+                    formatted_date = current_date.strftime('%A, %d %B %Y')
+                
+                dates.append({
+                    'value': current_date.isoformat(), 
+                    'label': formatted_date
+                })
         return dates
 
     @http.route(['/shop/get_time_slots'], type='json', auth="public", website=True)
