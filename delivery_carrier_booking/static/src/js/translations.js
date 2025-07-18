@@ -30,6 +30,12 @@
     
     // Get current language from Odoo
     function getCurrentLanguage() {
+        // For testing: Force Danish if URL contains debug parameter
+        if (window.location.search.includes('lang=da') || window.location.search.includes('debug')) {
+            console.log('DEBUG: Forcing Danish language');
+            return 'da';
+        }
+        
         // Method 1: Try to get language injected by template
         if (window.odooDeliveryBookingLang) {
             var injectedLang = window.odooDeliveryBookingLang.split('_')[0];
@@ -46,18 +52,20 @@
             }
         }
         
-        // Method 3: Try to get from document lang attribute
-        if (document.documentElement.lang) {
-            var docLang = document.documentElement.lang.split('-')[0];
-            console.log('Language from document:', docLang);
-            return docLang;
+        // Method 3: Check if page language is Danish (common in Danish Odoo installations)
+        var bodyLang = document.body.getAttribute('data-lang') || 
+                      document.documentElement.getAttribute('lang') ||
+                      document.querySelector('html').getAttribute('lang');
+        if (bodyLang && bodyLang.toLowerCase().includes('da')) {
+            console.log('Language from page attributes:', bodyLang);
+            return 'da';
         }
         
-        // Method 4: Try to get from HTML lang attribute
-        var htmlLang = document.querySelector('html').getAttribute('lang');
-        if (htmlLang) {
-            console.log('Language from HTML:', htmlLang);
-            return htmlLang.split('-')[0];
+        // Method 4: Check for Danish text in the page (heuristic)
+        var pageText = document.body.textContent || '';
+        if (pageText.includes('Leveringsmetode') || pageText.includes('Betalingsmetode') || pageText.includes('Ordrebekræftelse')) {
+            console.log('Danish detected from page content');
+            return 'da';
         }
         
         // Method 5: Fallback to browser language
@@ -78,10 +86,8 @@
         var translations = window.DeliveryBookingTranslations[lang] || window.DeliveryBookingTranslations['en'];
         var result = translations[key] || key;
         
-        // Debug logging (only in debug mode)
-        if (window.location.search.includes('debug') || localStorage.getItem('delivery_booking_debug')) {
-            console.log('Translation:', key, '->', result, '(lang:', lang, ')');
-        }
+        // Always log for now to debug
+        console.log('Translation:', key, '->', result, '(lang:', lang, ')');
         
         return result;
     };
@@ -104,6 +110,13 @@
         });
     };
     
+    // Force Danish for testing
+    window.forceDanishTranslations = function() {
+        localStorage.setItem('delivery_booking_lang', 'da');
+        console.log('Danish translations forced. Reloading page...');
+        window.location.reload();
+    };
+    
     // Check for manually set language
     var manualLang = localStorage.getItem('delivery_booking_lang');
     if (manualLang) {
@@ -114,5 +127,11 @@
             return manualLang;
         };
     }
+    
+    // Initialize and test immediately
+    console.log('=== Delivery Booking Translation System Initialized ===');
+    console.log('Detected language:', getCurrentLanguage());
+    console.log('Available languages:', Object.keys(window.DeliveryBookingTranslations));
+    console.log('Test translation (schedule_delivery):', _t('schedule_delivery'));
     
 })();
