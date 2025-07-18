@@ -188,39 +188,3 @@ msgstr "Åbningstid skal være mellem 0 og 24."
 msgid "Closing hour must be between 0 and 24 and greater than opening hour."
 msgstr "Lukketid skal være mellem 0 og 24 og større end åbningstid."
 
-#. Frontend JavaScript strings
-#: static/src/js/delivery_booking.js
-msgid "Schedule Your Delivery"
-msgstr "Planlæg din levering"
-
-#: static/src/js/delivery_booking.js
-msgid "Delivery Date"
-msgstr "Leveringsdato"
-
-#: static/src/js/delivery_booking.js
-msgid "Select delivery date..."
-msgstr "Vælg leveringsdato..."
-
-#: static/src/js/delivery_booking.js
-msgid "Time Slot"
-msgstr "Tidspunkt"
-
-#: static/src/js/delivery_booking.js
-msgid "Select time slot..."
-msgstr "Vælg tidspunkt..."
-
-#: static/src/js/delivery_booking.js
-msgid "Loading..."
-msgstr "Indlæser..."
-
-#: static/src/js/delivery_booking.js
-msgid "Error loading slots"
-msgstr "Fejl ved indlæsning af tidspunkter"
-
-#: static/src/js/delivery_booking.js
-msgid "Delivery scheduled for"
-msgstr "Levering planlagt til"
-
-#: static/src/js/delivery_booking.js
-msgid "at"
-msgstr "kl."

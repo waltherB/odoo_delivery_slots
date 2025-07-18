@@ -188,39 +188,3 @@ msgstr ""
 msgid "Closing hour must be between 0 and 24 and greater than opening hour."
 msgstr ""
 
-#. Frontend JavaScript strings
-#: static/src/js/delivery_booking.js
-msgid "Schedule Your Delivery"
-msgstr ""
-
-#: static/src/js/delivery_booking.js
-msgid "Delivery Date"
-msgstr ""
-
-#: static/src/js/delivery_booking.js
-msgid "Select delivery date..."
-msgstr ""
-
-#: static/src/js/delivery_booking.js
-msgid "Time Slot"
-msgstr ""
-
-#: static/src/js/delivery_booking.js
-msgid "Select time slot..."
-msgstr ""
-
-#: static/src/js/delivery_booking.js
-msgid "Loading..."
-msgstr ""
-
-#: static/src/js/delivery_booking.js
-msgid "Error loading slots"
-msgstr ""
-
-#: static/src/js/delivery_booking.js
-msgid "Delivery scheduled for"
-msgstr ""
-
-#: static/src/js/delivery_booking.js
-msgid "at"
-msgstr ""
