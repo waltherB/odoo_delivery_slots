@@ -1,7 +1,7 @@
-/** @odoo-module **/
+odoo.define('delivery_carrier_booking.delivery_booking', function (require) {
+'use strict';
 
-import { patch } from "@web/core/utils/patch";
-import publicWidget from "@web/legacy/js/public/public_widget";
+var publicWidget = require('web.public.widget');
 
 // Create a new widget for delivery booking
 publicWidget.registry.DeliveryBooking = publicWidget.Widget.extend({
@@ -12,74 +12,78 @@ publicWidget.registry.DeliveryBooking = publicWidget.Widget.extend({
         'change #delivery_time_slot': '_onTimeSlotChange',
     },
 
-    start() {
-        this._super(...arguments);
+    start: function() {
+        var self = this;
+        this._super.apply(this, arguments);
         
         // Only initialize on payment page
         if (window.location.pathname.includes('/shop/payment')) {
             console.log('Initializing delivery booking on payment page');
             
             // Wait a bit for the page to fully load
-            setTimeout(() => {
-                this._injectBookingSection();
-                this._setupGlobalEventListeners();
-                this._checkInitialCarrier();
+            setTimeout(function() {
+                self._injectBookingSection();
+                self._setupGlobalEventListeners();
+                self._checkInitialCarrier();
             }, 1000);
         }
     },
 
-    _setupGlobalEventListeners() {
+    _setupGlobalEventListeners: function() {
+        var self = this;
+        
         // Listen for any carrier changes globally
-        document.addEventListener('change', (e) => {
+        document.addEventListener('change', function(e) {
             if (e.target.name === 'carrier_id' || 
                 e.target.name === 'delivery_type' ||
                 (e.target.type === 'radio' && e.target.name.includes('carrier'))) {
                 console.log('Global carrier change detected:', e.target.name, e.target.value);
-                this._updateBookingVisibility(e.target.value);
+                self._updateBookingVisibility(e.target.value);
             }
         });
         
         // Also listen for clicks on delivery options
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', function(e) {
             if (e.target.type === 'radio' && 
                 (e.target.name === 'carrier_id' || e.target.name.includes('carrier'))) {
                 console.log('Carrier radio clicked:', e.target.value);
-                setTimeout(() => {
-                    this._updateBookingVisibility(e.target.value);
+                setTimeout(function() {
+                    self._updateBookingVisibility(e.target.value);
                 }, 100);
             }
         });
     },
 
-    _onCarrierChange(ev) {
-        const carrierId = ev.target.value;
+    _onCarrierChange: function(ev) {
+        var carrierId = ev.target.value;
         console.log('Carrier changed to:', carrierId);
         this._updateBookingVisibility(carrierId);
     },
 
-    _onDeliveryDateChange(ev) {
-        const selectedDate = ev.target.value;
-        const carrierId = this._getCurrentCarrierId();
+    _onDeliveryDateChange: function(ev) {
+        var selectedDate = ev.target.value;
+        var carrierId = this._getCurrentCarrierId();
         
         if (selectedDate && carrierId) {
             this._loadTimeSlots(selectedDate, carrierId);
         }
     },
 
-    _onTimeSlotChange() {
+    _onTimeSlotChange: function() {
         this._saveDeliveryBooking();
     },
 
-    _getCurrentCarrierId() {
+    _getCurrentCarrierId: function() {
         // Try multiple selectors to find the current carrier
-        let checkedCarrier = document.querySelector('input[name="carrier_id"]:checked');
+        var checkedCarrier = document.querySelector('input[name="carrier_id"]:checked');
         if (!checkedCarrier) {
             checkedCarrier = document.querySelector('input[name="delivery_type"]:checked');
         }
         if (!checkedCarrier) {
             // Try to find any checked radio button that might be a carrier
-            const allRadios = document.querySelectorAll('input[type="radio"]:checked');
-            for (let radio of allRadios) {
+            var allRadios = document.querySelectorAll('input[type="radio"]:checked');
+            for (var i = 0; i < allRadios.length; i++) {
+                var radio = allRadios[i];
                 if (radio.name.includes('carrier') || radio.name.includes('delivery')) {
                     checkedCarrier = radio;
                     break;
@@ -91,44 +95,50 @@ publicWidget.registry.DeliveryBooking = publicWidget.Widget.extend({
         return checkedCarrier ? checkedCarrier.value : null;
     },
 
-    _checkInitialCarrier() {
-        const carrierId = this._getCurrentCarrierId();
+    _checkInitialCarrier: function() {
+        var carrierId = this._getCurrentCarrierId();
         if (carrierId) {
             this._updateBookingVisibility(carrierId);
         }
     },
 
-    _updateBookingVisibility(carrierId) {
+    _updateBookingVisibility: function(carrierId) {
+        var self = this;
+        
         if (!carrierId) {
             this._hideBookingSection();
             return;
         }
 
-        this.rpc('/shop/update_carrier_booking', {
-            carrier_id: carrierId
-        }).then((result) => {
+        this._rpc({
+            route: '/shop/update_carrier_booking',
+            params: {
+                carrier_id: carrierId
+            }
+        }).then(function(result) {
             console.log('Booking check result:', result);
             
             if (result.booking_enabled) {
-                this._showBookingSection();
+                self._showBookingSection();
                 if (result.delivery_dates) {
-                    this._updateDeliveryDates(result.delivery_dates);
+                    self._updateDeliveryDates(result.delivery_dates);
                 }
             } else {
-                this._hideBookingSection();
+                self._hideBookingSection();
             }
-        }).catch((error) => {
+        }).catch(function(error) {
             console.error('Error checking carrier booking:', error);
-            this._hideBookingSection();
+            self._hideBookingSection();
         });
     },
 
-    _injectBookingSection() {
-        if (this.el.querySelector('.js_delivery_booking')) {
+    _injectBookingSection: function() {
+        if (document.querySelector('.js_delivery_booking')) {
+            console.log('Booking section already exists');
             return; // Already exists
         }
 
-        const bookingHTML = `
+        var bookingHTML = `
             <div class="js_delivery_booking" style="display: none; margin: 20px 0;">
                 <div class="card mb-3">
                     <div class="card-header">
@@ -162,46 +172,50 @@ publicWidget.registry.DeliveryBooking = publicWidget.Widget.extend({
         `;
 
         // Find the best place to inject - after delivery carrier selection
-        const deliverySection = this.el.querySelector('#delivery_carrier') || 
-                               this.el.querySelector('.o_delivery_carrier_select') ||
-                               this.el.querySelector('.js_delivery');
+        var deliverySection = document.querySelector('#delivery_carrier') || 
+                             document.querySelector('.o_delivery_carrier_select') ||
+                             document.querySelector('.js_delivery');
 
         if (deliverySection) {
+            console.log('Injecting booking section after delivery section');
             deliverySection.insertAdjacentHTML('afterend', bookingHTML);
         } else {
             // Fallback - inject at the beginning of the container
-            const container = this.el.querySelector('.container') || this.el;
+            var container = document.querySelector('.container') || document.body;
+            console.log('Injecting booking section in container fallback');
             container.insertAdjacentHTML('afterbegin', bookingHTML);
         }
     },
 
-    _showBookingSection() {
-        const bookingSection = this.el.querySelector('.js_delivery_booking');
+    _showBookingSection: function() {
+        var bookingSection = document.querySelector('.js_delivery_booking');
         if (bookingSection) {
             bookingSection.style.display = 'block';
             console.log('Showing booking section');
+        } else {
+            console.log('Booking section not found when trying to show');
         }
     },
 
-    _hideBookingSection() {
-        const bookingSection = this.el.querySelector('.js_delivery_booking');
+    _hideBookingSection: function() {
+        var bookingSection = document.querySelector('.js_delivery_booking');
         if (bookingSection) {
             bookingSection.style.display = 'none';
             // Clear selections
-            const dateSelect = this.el.querySelector('#delivery_date');
-            const timeSelect = this.el.querySelector('#delivery_time_slot');
+            var dateSelect = document.querySelector('#delivery_date');
+            var timeSelect = document.querySelector('#delivery_time_slot');
             if (dateSelect) dateSelect.value = '';
             if (timeSelect) timeSelect.value = '';
             console.log('Hiding booking section');
         }
     },
 
-    _updateDeliveryDates(dates) {
-        const dateSelect = this.el.querySelector('#delivery_date');
+    _updateDeliveryDates: function(dates) {
+        var dateSelect = document.querySelector('#delivery_date');
         if (dateSelect) {
             dateSelect.innerHTML = '<option value="">Select delivery date...</option>';
-            dates.forEach(dateOption => {
-                const option = document.createElement('option');
+            dates.forEach(function(dateOption) {
+                var option = document.createElement('option');
                 option.value = dateOption.value;
                 option.textContent = dateOption.label;
                 dateSelect.appendChild(option);
@@ -210,45 +224,56 @@ publicWidget.registry.DeliveryBooking = publicWidget.Widget.extend({
         }
     },
 
-    _loadTimeSlots(selectedDate, carrierId) {
-        const timeSelect = this.el.querySelector('#delivery_time_slot');
+    _loadTimeSlots: function(selectedDate, carrierId) {
+        var self = this;
+        var timeSelect = document.querySelector('#delivery_time_slot');
         if (!timeSelect) return;
 
         timeSelect.innerHTML = '<option value="">Loading...</option>';
 
-        this.rpc('/shop/get_time_slots', {
-            delivery_date: selectedDate,
-            carrier_id: carrierId
-        }).then((result) => {
+        this._rpc({
+            route: '/shop/get_time_slots',
+            params: {
+                delivery_date: selectedDate,
+                carrier_id: carrierId
+            }
+        }).then(function(result) {
             timeSelect.innerHTML = '<option value="">Select time slot...</option>';
             if (result.time_slots) {
-                result.time_slots.forEach(slot => {
-                    const option = document.createElement('option');
+                result.time_slots.forEach(function(slot) {
+                    var option = document.createElement('option');
                     option.value = slot;
                     option.textContent = slot;
                     timeSelect.appendChild(option);
                 });
                 console.log('Loaded time slots:', result.time_slots.length);
             }
-        }).catch((error) => {
+        }).catch(function(error) {
             console.error('Error loading time slots:', error);
             timeSelect.innerHTML = '<option value="">Error loading slots</option>';
         });
     },
 
-    _saveDeliveryBooking() {
-        const dateSelect = this.el.querySelector('#delivery_date');
-        const timeSelect = this.el.querySelector('#delivery_time_slot');
+    _saveDeliveryBooking: function() {
+        var dateSelect = document.querySelector('#delivery_date');
+        var timeSelect = document.querySelector('#delivery_time_slot');
 
         if (dateSelect && timeSelect && dateSelect.value && timeSelect.value) {
-            this.rpc('/shop/set_delivery_booking', {
-                delivery_date: dateSelect.value,
-                delivery_time_slot: timeSelect.value
-            }).then(() => {
+            this._rpc({
+                route: '/shop/set_delivery_booking',
+                params: {
+                    delivery_date: dateSelect.value,
+                    delivery_time_slot: timeSelect.value
+                }
+            }).then(function() {
                 console.log('Delivery booking saved');
-            }).catch((error) => {
+            }).catch(function(error) {
                 console.error('Error saving delivery booking:', error);
             });
         }
     }
+});
+
+return publicWidget.registry.DeliveryBooking;
+
 });
