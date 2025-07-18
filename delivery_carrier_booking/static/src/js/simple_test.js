@@ -1,1 +1,0 @@
-alert('SIMPLE TEST WORKING!');
