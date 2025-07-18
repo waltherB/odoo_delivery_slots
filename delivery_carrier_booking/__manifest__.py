@@ -58,6 +58,7 @@ Technical Details:
     ],
     'assets': {
         'web.assets_frontend': [
+            'delivery_carrier_booking/static/src/js/translations.js',
             'delivery_carrier_booking/static/src/js/delivery_booking.js',
         ],
     },

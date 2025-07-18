@@ -24,7 +24,7 @@ Allow your customers to select specific delivery dates and time slots during che
 - **Seamless Integration**: Works with existing Odoo eCommerce checkout flow
 - **AJAX-Powered**: Dynamic updates without page reloads
 - **Performance Optimized**: Efficient database queries and caching
-- **Multi-language Ready**: Translatable interface elements
+- **Multi-language Support**: Complete internationalization with Danish translation included
 - **Odoo 17 Compatible**: Built for the latest Odoo version
 
 ## 📋 Requirements
@@ -126,6 +126,7 @@ Allow your customers to select specific delivery dates and time slots during che
 
 - **Odoo Version**: 17.0+
 - **Dependencies**: `website_sale`, `delivery`
+- **Languages**: English (default), Danish (complete translation)
 - **Browsers**: Chrome, Firefox, Safari, Edge
 - **Devices**: Desktop, Tablet, Mobile
 

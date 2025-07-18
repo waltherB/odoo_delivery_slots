@@ -48,24 +48,24 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
                     <div class="card-header" style="background-color: #f8f9fa;">
                         <h6 class="mb-0">
                             <i class="fa fa-calendar me-2"></i>
-                            Schedule Your Delivery
+                            ` + _t('schedule_delivery') + `
                         </h6>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="delivery_date" class="form-label">Delivery Date</label>
+                                    <label for="delivery_date" class="form-label">` + _t('delivery_date') + `</label>
                                     <select id="delivery_date" name="delivery_date" class="form-control">
-                                        <option value="">Select delivery date...</option>
+                                        <option value="">` + _t('select_delivery_date') + `</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="delivery_time_slot" class="form-label">Time Slot</label>
+                                    <label for="delivery_time_slot" class="form-label">` + _t('time_slot') + `</label>
                                     <select id="delivery_time_slot" name="delivery_time_slot" class="form-control">
-                                        <option value="">Select time slot...</option>
+                                        <option value="">` + _t('select_time_slot') + `</option>
                                     </select>
                                 </div>
                             </div>
@@ -419,7 +419,7 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
     function updateDeliveryDates(dates) {
         var dateSelect = document.querySelector('#delivery_date');
         if (dateSelect) {
-            dateSelect.innerHTML = '<option value="">Select delivery date...</option>';
+            dateSelect.innerHTML = '<option value="">' + _t('select_delivery_date') + '</option>';
             dates.forEach(function(dateOption) {
                 var option = document.createElement('option');
                 option.value = dateOption.value;
@@ -433,7 +433,7 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
         var timeSelect = document.querySelector('#delivery_time_slot');
         if (!timeSelect) return;
         
-        timeSelect.innerHTML = '<option value="">Loading...</option>';
+        timeSelect.innerHTML = '<option value="">' + _t('loading') + '</option>';
         
         fetch('/shop/get_time_slots', {
             method: 'POST',
@@ -451,7 +451,7 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
         })
         .then(response => response.json())
         .then(data => {
-            timeSelect.innerHTML = '<option value="">Select time slot...</option>';
+            timeSelect.innerHTML = '<option value="">' + _t('select_time_slot') + '</option>';
             if (data.result && data.result.time_slots) {
                 data.result.time_slots.forEach(function(slot) {
                     var option = document.createElement('option');
@@ -464,7 +464,7 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
         })
         .catch(error => {
             console.error('Error loading time slots:', error);
-            timeSelect.innerHTML = '<option value="">Error loading slots</option>';
+            timeSelect.innerHTML = '<option value="">' + _t('error_loading_slots') + '</option>';
         });
     }
     
@@ -508,9 +508,9 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
                         confirmationDiv.className = 'booking-confirmation alert alert-success mt-2';
                         bookingSection.appendChild(confirmationDiv);
                     }
-                    confirmationDiv.innerHTML = '<i class="fa fa-check"></i> Delivery scheduled for ' + 
+                    confirmationDiv.innerHTML = '<i class="fa fa-check"></i> ' + _t('delivery_scheduled_for') + ' ' + 
                                               dateSelect.options[dateSelect.selectedIndex].text + 
-                                              ' at ' + selectedTimeSlot;
+                                              ' ' + _t('at') + ' ' + selectedTimeSlot;
                     
                     // Hide confirmation after 3 seconds
                     setTimeout(function() {
