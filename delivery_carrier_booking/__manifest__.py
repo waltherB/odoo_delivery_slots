@@ -14,10 +14,6 @@
     ],
     'assets': {
         'web.assets_frontend': [
-            'delivery_carrier_booking/static/src/js/test.js',
-            'delivery_carrier_booking/static/src/js/delivery_booking.js',
-        ],
-        'web.assets_frontend_lazy': [
             'delivery_carrier_booking/static/src/js/delivery_booking.js',
         ],
     },
