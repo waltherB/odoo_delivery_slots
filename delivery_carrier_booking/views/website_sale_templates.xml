@@ -1,5 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Remove the problematic payment template for now -->
-    <!-- We'll add the booking section via JavaScript injection instead -->
+    <!-- Add JavaScript directly to payment page -->
+    <template id="payment_delivery_booking_script" inherit_id="website.layout">
+        <xpath expr="//head" position="inside">
+            <script type="text/javascript">
+                console.log('Delivery booking script loaded via template');
+                
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (window.location.pathname.includes('/shop/payment')) {
+                        console.log('On payment page - initializing delivery booking');
+                        initDeliveryBooking();
+                    }
+                });
+                
+                function initDeliveryBooking() {
+                    // Inject booking section
+                    var bookingHTML = `
+                        &lt;div class="js_delivery_booking" style="display: none; margin: 20px 0;"&gt;
+                            &lt;div class="card mb-3"&gt;
+                                &lt;div class="card-header"&gt;
+                                    &lt;h5 class="mb-0"&gt;
+                                        &lt;i class="fa fa-calendar me-2"&gt;&lt;/i&gt;
+                                        Schedule Your Delivery
+                                    &lt;/h5&gt;
+                                &lt;/div&gt;
+                                &lt;div class="card-body"&gt;
+                                    &lt;div class="row"&gt;
+                                        &lt;div class="col-md-6"&gt;
+                                            &lt;div class="form-group mb-3"&gt;
+                                                &lt;label for="delivery_date" class="form-label"&gt;Delivery Date&lt;/label&gt;
+                                                &lt;select id="delivery_date" name="delivery_date" class="form-control"&gt;
+                                                    &lt;option value=""&gt;Select delivery date...&lt;/option&gt;
+                                                &lt;/select&gt;
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                        &lt;div class="col-md-6"&gt;
+                                            &lt;div class="form-group mb-3"&gt;
+                                                &lt;label for="delivery_time_slot" class="form-label"&gt;Time Slot&lt;/label&gt;
+                                                &lt;select id="delivery_time_slot" name="delivery_time_slot" class="form-control"&gt;
+                                                    &lt;option value=""&gt;Select time slot...&lt;/option&gt;
+                                                &lt;/select&gt;
+                                            &lt;/div&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    `;
+                    
+                    // Find container and inject
+                    var container = document.querySelector('.container') || document.body;
+                    container.insertAdjacentHTML('afterbegin', bookingHTML);
+                    
+                    // Setup event listeners
+                    setupEventListeners();
+                }
+                
+                function setupEventListeners() {
+                    // Listen for carrier changes
+                    document.addEventListener('change', function(e) {
+                        if (e.target.name === 'carrier_id' || 
+                            (e.target.type === 'radio' &amp;&amp; e.target.name.includes('carrier'))) {
+                            console.log('Carrier changed:', e.target.value);
+                            updateBookingVisibility(e.target.value);
+                        }
+                    });
+                    
+                    // Listen for date changes
+                    var dateSelect = document.getElementById('delivery_date');
+                    if (dateSelect) {
+                        dateSelect.addEventListener('change', function() {
+                            var carrierId = getCurrentCarrierId();
+                            if (this.value &amp;&amp; carrierId) {
+                                loadTimeSlots(this.value, carrierId);
+                            }
+                        });
+                    }
+                }
+                
+                function getCurrentCarrierId() {
+                    var checkedCarrier = document.querySelector('input[name="carrier_id"]:checked');
+                    return checkedCarrier ? checkedCarrier.value : null;
+                }
+                
+                function updateBookingVisibility(carrierId) {
+                    if (!carrierId) {
+                        hideBookingSection();
+                        return;
+                    }
+                    
+                    fetch('/shop/update_carrier_booking', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            jsonrpc: '2.0',
+                            method: 'call',
+                            params: {
+                                carrier_id: carrierId
+                            }
+                        })
+                    })
+                    .then(response =&gt; response.json())
+                    .then(data =&gt; {
+                        console.log('Booking check result:', data);
+                        if (data.result &amp;&amp; data.result.booking_enabled) {
+                            showBookingSection();
+                            if (data.result.delivery_dates) {
+                                updateDeliveryDates(data.result.delivery_dates);
+                            }
+                        } else {
+                            hideBookingSection();
+                        }
+                    })
+                    .catch(error =&gt; {
+                        console.error('Error:', error);
+                        hideBookingSection();
+                    });
+                }
+                
+                function showBookingSection() {
+                    var section = document.querySelector('.js_delivery_booking');
+                    if (section) {
+                        section.style.display = 'block';
+                        console.log('Showing booking section');
+                    }
+                }
+                
+                function hideBookingSection() {
+                    var section = document.querySelector('.js_delivery_booking');
+                    if (section) {
+                        section.style.display = 'none';
+                        console.log('Hiding booking section');
+                    }
+                }
+                
+                function updateDeliveryDates(dates) {
+                    var dateSelect = document.getElementById('delivery_date');
+                    if (dateSelect) {
+                        dateSelect.innerHTML = '&lt;option value=""&gt;Select delivery date...&lt;/option&gt;';
+                        dates.forEach(function(dateOption) {
+                            var option = document.createElement('option');
+                            option.value = dateOption.value;
+                            option.textContent = dateOption.label;
+                            dateSelect.appendChild(option);
+                        });
+                        console.log('Updated delivery dates:', dates.length);
+                    }
+                }
+                
+                function loadTimeSlots(selectedDate, carrierId) {
+                    var timeSelect = document.getElementById('delivery_time_slot');
+                    if (!timeSelect) return;
+                    
+                    timeSelect.innerHTML = '&lt;option value=""&gt;Loading...&lt;/option&gt;';
+                    
+                    fetch('/shop/get_time_slots', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            jsonrpc: '2.0',
+                            method: 'call',
+                            params: {
+                                delivery_date: selectedDate,
+                                carrier_id: carrierId
+                            }
+                        })
+                    })
+                    .then(response =&gt; response.json())
+                    .then(data =&gt; {
+                        timeSelect.innerHTML = '&lt;option value=""&gt;Select time slot...&lt;/option&gt;';
+                        if (data.result &amp;&amp; data.result.time_slots) {
+                            data.result.time_slots.forEach(function(slot) {
+                                var option = document.createElement('option');
+                                option.value = slot;
+                                option.textContent = slot;
+                                timeSelect.appendChild(option);
+                            });
+                            console.log('Loaded time slots:', data.result.time_slots.length);
+                        }
+                    })
+                    .catch(error =&gt; {
+                        console.error('Error loading time slots:', error);
+                        timeSelect.innerHTML = '&lt;option value=""&gt;Error loading slots&lt;/option&gt;';
+                    });
+                }
+            </script>
+        </xpath>
+    </template>
 </odoo> 
