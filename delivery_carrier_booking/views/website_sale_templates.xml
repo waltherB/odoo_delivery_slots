@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Simple test template -->
-    <template id="delivery_booking_test" name="Delivery Booking Test">
-        <div class="delivery-booking-test" style="background: red; color: white; padding: 20px;">
-            <h3>DELIVERY BOOKING MODULE LOADED</h3>
-            <script>
-                console.log('TEMPLATE SCRIPT: Delivery booking loaded!');
-                alert('Template script working!');
+    <!-- Language injection template for delivery booking translations -->
+    <template id="delivery_booking_language_inject" name="Delivery Booking Language" inherit_id="website.layout">
+        <xpath expr="//head" position="inside">
+            <script type="text/javascript">
+                // Inject current language for delivery booking translations
+                window.odooDeliveryBookingLang = '<t t-esc="request.env.user.lang or \'en_US\'"/>';
+                console.log('Delivery booking language injected:', window.odooDeliveryBookingLang);
             </script>
-        </div>
+        </xpath>
     </template>
 </odoo>
