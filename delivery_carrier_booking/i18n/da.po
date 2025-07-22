@@ -37,6 +37,41 @@ msgid "Day of the Week"
 msgstr "Ugedag"
 
 #. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Monday"
+msgstr "Mandag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Tuesday"
+msgstr "Tirsdag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Wednesday"
+msgstr "Onsdag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Thursday"
+msgstr "Torsdag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Friday"
+msgstr "Fredag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Saturday"
+msgstr "Lørdag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Sunday"
+msgstr "Søndag"
+
+#. module: delivery_carrier_booking
 #: model:ir.model.fields,field_description:delivery_carrier_booking.field_delivery_carrier__enable_delivery_date_selection
 msgid "Enable Delivery Date Selection?"
 msgstr "Aktivér valg af leveringsdato?"
