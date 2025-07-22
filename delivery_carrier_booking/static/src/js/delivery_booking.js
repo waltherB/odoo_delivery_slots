@@ -255,6 +255,11 @@
         })
         .then(response => response.json())
         .then(data => {
+            // Temporary debugging for anonymous user issues
+            if (window.location.search.includes('debug_booking')) {
+                console.log('Booking response:', data);
+            }
+            
             if (data.result && data.result.booking_enabled) {
                 showBookingSection();
                 if (data.result.delivery_dates) {
@@ -262,10 +267,17 @@
                 }
             } else {
                 hideBookingSection();
+                // Show error if debugging is enabled
+                if (window.location.search.includes('debug_booking') && data.result && data.result.error) {
+                    console.error('Booking error:', data.result.error);
+                }
             }
         })
         .catch(error => {
             hideBookingSection();
+            if (window.location.search.includes('debug_booking')) {
+                console.error('Booking fetch error:', error);
+            }
         })
         .finally(() => {
             isUpdatingBooking = false;

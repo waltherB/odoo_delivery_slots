@@ -21,8 +21,21 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
         dates = []
         start_date = date.today() + timedelta(days=carrier.start_delivery_after_days or 0)
         
-        # Get user's language for proper date formatting
-        user_lang = request.env.user.lang or request.env.context.get('lang', 'en_US')
+        # Get language for proper date formatting - works for both logged in and anonymous users
+        user_lang = None
+        
+        # Try multiple methods to get language for anonymous users
+        if request.env.user and not request.env.user._is_public():
+            # Logged in user
+            user_lang = request.env.user.lang
+        else:
+            # Anonymous user - try different methods
+            user_lang = (
+                request.env.context.get('lang') or  # From context
+                request.httprequest.cookies.get('frontend_lang') or  # From cookie
+                request.website.default_lang_id.code or  # Website default
+                'en_US'  # Final fallback
+            )
         
         # Convert Odoo language code to Babel locale
         locale_mapping = {
@@ -66,56 +79,99 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
 
     @http.route(['/shop/get_time_slots'], type='json', auth="public", website=True)
     def get_time_slots(self, delivery_date, carrier_id, **post):
-        carrier = request.env['delivery.carrier'].browse(int(carrier_id))
-        if not carrier or not delivery_date:
-            return {}
+        try:
+            carrier = request.env['delivery.carrier'].browse(int(carrier_id))
+            if not carrier or not delivery_date:
+                return {'time_slots': [], 'error': 'Missing carrier or date'}
 
-        selected_date = date.fromisoformat(delivery_date)
-        weekday = str(selected_date.weekday())
-        slots = carrier.booking_slot_ids.filtered(lambda s: s.weekday == weekday)
-        
-        time_slots = []
-        interval_hours = (carrier.time_slot_interval or 60) / 60.0
-        
-        for slot in slots:
-            current_time = slot.opening_hour
-            while current_time + interval_hours <= slot.closing_hour:
-                start_hour = int(current_time)
-                start_min = int((current_time - start_hour) * 60)
-                end_time = current_time + interval_hours
-                end_hour = int(end_time)
-                end_min = int((end_time - end_hour) * 60)
-                
-                time_slot = f"{start_hour:02d}:{start_min:02d} - {end_hour:02d}:{end_min:02d}"
-                time_slots.append(time_slot)
-                current_time += interval_hours
-        return {'time_slots': time_slots}
+            selected_date = date.fromisoformat(delivery_date)
+            weekday = str(selected_date.weekday())
+            slots = carrier.booking_slot_ids.filtered(lambda s: s.weekday == weekday)
+            
+            time_slots = []
+            interval_hours = (carrier.time_slot_interval or 60) / 60.0
+            
+            for slot in slots:
+                current_time = slot.opening_hour
+                while current_time + interval_hours <= slot.closing_hour:
+                    start_hour = int(current_time)
+                    start_min = int((current_time - start_hour) * 60)
+                    end_time = current_time + interval_hours
+                    end_hour = int(end_time)
+                    end_min = int((end_time - end_hour) * 60)
+                    
+                    time_slot = f"{start_hour:02d}:{start_min:02d} - {end_hour:02d}:{end_min:02d}"
+                    time_slots.append(time_slot)
+                    current_time += interval_hours
+                    
+            return {
+                'time_slots': time_slots,
+                'debug_info': {
+                    'carrier_id': carrier_id,
+                    'selected_date': delivery_date,
+                    'weekday': weekday,
+                    'slots_found': len(slots),
+                    'user_is_public': request.env.user._is_public()
+                }
+            }
+        except Exception as e:
+            return {'time_slots': [], 'error': str(e)}
 
     @http.route(['/shop/set_delivery_booking'], type='json', auth="public", website=True)
     def set_delivery_booking(self, delivery_date, delivery_time_slot, **post):
-        order = request.website.sale_get_order()
-        if order:
-            order.write({
+        try:
+            order = request.website.sale_get_order()
+            if not order:
+                return {'success': False, 'error': 'No active order found'}
+            
+            # Use sudo() to ensure we can write to the order even for anonymous users
+            order.sudo().write({
                 'delivery_booking_date': delivery_date,
                 'delivery_booking_slot': delivery_time_slot,
             })
-        return {}
+            
+            return {
+                'success': True,
+                'debug_info': {
+                    'order_id': order.id,
+                    'delivery_date': delivery_date,
+                    'delivery_slot': delivery_time_slot,
+                    'user_is_public': request.env.user._is_public()
+                }
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
 
     @http.route(['/shop/update_carrier_booking'], type='json', auth="public", website=True)
     def update_carrier_booking(self, carrier_id, **post):
-        carrier = request.env['delivery.carrier'].browse(int(carrier_id))
-        if not carrier:
-            return {'booking_enabled': False}
-        
-        result = {
-            'booking_enabled': carrier.enable_delivery_date_selection,
-            'delivery_dates': []
-        }
-        
-        if carrier.enable_delivery_date_selection:
-            result['delivery_dates'] = self._get_available_dates(carrier)
+        try:
+            carrier = request.env['delivery.carrier'].browse(int(carrier_id))
+            if not carrier:
+                return {'booking_enabled': False, 'error': 'Carrier not found'}
             
-        return result
+            # Check if we have a valid order (works for both logged in and anonymous users)
+            order = request.website.sale_get_order()
+            if not order:
+                return {'booking_enabled': False, 'error': 'No active order'}
+            
+            result = {
+                'booking_enabled': carrier.enable_delivery_date_selection,
+                'delivery_dates': [],
+                'debug_info': {
+                    'carrier_id': carrier_id,
+                    'carrier_name': carrier.name,
+                    'order_id': order.id if order else None,
+                    'user_is_public': request.env.user._is_public(),
+                    'user_lang': request.env.context.get('lang', 'unknown')
+                }
+            }
+            
+            if carrier.enable_delivery_date_selection:
+                result['delivery_dates'] = self._get_available_dates(carrier)
+                
+            return result
+        except Exception as e:
+            return {'booking_enabled': False, 'error': str(e)}
 
     @http.route(['/shop/checkout'], type='http', auth='public', website=True, sitemap=False)
     def checkout(self, **post):
@@ -143,7 +199,31 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
         result = super(WebsiteSaleDeliveryBooking, self).confirm_order(**post)
 
         return result
-        
+
+    @http.route(['/shop/debug_booking'], type='json', auth="public", website=True)
+    def debug_booking(self, **post):
+        """Debug endpoint to check anonymous user booking status"""
+        try:
+            order = request.website.sale_get_order()
+            user = request.env.user
+            
+            return {
+                'success': True,
+                'debug_info': {
+                    'has_order': bool(order),
+                    'order_id': order.id if order else None,
+                    'order_state': order.state if order else None,
+                    'user_is_public': user._is_public(),
+                    'user_id': user.id,
+                    'user_name': user.name,
+                    'website_id': request.website.id,
+                    'session_id': request.session.sid if hasattr(request.session, 'sid') else 'unknown',
+                    'context_lang': request.env.context.get('lang'),
+                    'cookies': dict(request.httprequest.cookies),
+                }
+            }
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
 
 
 
