@@ -3,11 +3,10 @@
     <!-- Language injection template for delivery booking translations -->
     <template id="delivery_booking_language_inject" name="Delivery Booking Language" inherit_id="website.layout">
         <xpath expr="//head" position="inside">
-            <t t-set="user_lang" t-value="request.env.user.lang or 'en_US'"/>
             <script type="text/javascript">
-                // Inject current language for delivery booking translations
-                window.odooDeliveryBookingLang = '<t t-esc="user_lang"/>';
-                console.log('Delivery booking language injected:', window.odooDeliveryBookingLang);
+                // Don't inject server language - let JavaScript detect client language
+                // This prevents server Danish settings from overriding website English
+                window.odooDeliveryBookingLang = null;
             </script>
         </xpath>
     </template>
