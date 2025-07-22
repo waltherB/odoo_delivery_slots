@@ -1,23 +1,14 @@
-console.log('=== DELIVERY BOOKING JS LOADED ===');
-
 // Simple approach without complex widget system
 (function() {
     'use strict';
     
-    console.log('=== DELIVERY BOOKING SCRIPT STARTING ===');
-    
     // Only run on payment page
     if (!window.location.pathname.includes('/shop/payment')) {
-        console.log('=== NOT ON PAYMENT PAGE, EXITING ===');
         return;
     }
     
-    console.log('=== ON PAYMENT PAGE, INITIALIZING ===');
-    
     // Wait for page to load - handle both cases
     function initDeliveryBooking() {
-        console.log('=== INITIALIZING DELIVERY BOOKING ===');
-        
         // Inject booking section
         injectBookingSection();
         
@@ -29,10 +20,8 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
     }
     
     if (document.readyState === 'loading') {
-        console.log('=== DOM STILL LOADING, ADDING EVENT LISTENER ===');
         document.addEventListener('DOMContentLoaded', initDeliveryBooking);
     } else {
-        console.log('=== DOM ALREADY LOADED, INITIALIZING NOW ===');
         initDeliveryBooking();
     }
     
@@ -74,7 +63,6 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
     
     function injectBookingSection() {
         if (document.querySelector('.js_delivery_booking')) {
-            console.log('=== BOOKING SECTION ALREADY EXISTS ===');
             return;
         }
         
@@ -87,7 +75,6 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
                              document.querySelector('label:contains("LEVERINGSMETODE")')?.closest('div');
         
         if (deliverySection) {
-            console.log('=== INJECTING BOOKING SECTION AFTER DELIVERY METHODS ===');
             deliverySection.insertAdjacentHTML('afterend', bookingHTML);
         } else {
             // Fallback: try to find payment method section and inject before it
@@ -96,17 +83,12 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
                                document.querySelector('#payment_method');
             
             if (paymentSection) {
-                console.log('=== INJECTING BOOKING SECTION BEFORE PAYMENT METHODS ===');
                 paymentSection.insertAdjacentHTML('beforebegin', bookingHTML);
-            } else {
-                console.error('=== COULD NOT FIND SUITABLE INJECTION POINT ===');
             }
         }
     }
     
     function setupEventListeners() {
-        console.log('=== SETTING UP EVENT LISTENERS ===');
-        
         // Hook into Odoo's AJAX system to listen for update_carrier calls
         var originalXHROpen = XMLHttpRequest.prototype.open;
         var originalXHRSend = XMLHttpRequest.prototype.send;
@@ -122,11 +104,9 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
             // Only listen to update_carrier, NOT update_carrier_booking (to avoid loops)
             if (this._url && this._url.includes('/shop/update_carrier') && 
                 !this._url.includes('/shop/update_carrier_booking')) {
-                console.log('=== DETECTED UPDATE_CARRIER CALL ===');
                 
                 xhr.addEventListener('load', function() {
                     setTimeout(function() {
-                        console.log('=== UPDATE_CARRIER COMPLETED, UPDATING BOOKING ===');
                         var currentCarrier = getCurrentCarrierId();
                         if (currentCarrier) {
                             repositionAndUpdateBooking(currentCarrier);
@@ -149,7 +129,6 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
                 if (args[0] && args[0].includes && args[0].includes('/shop/update_carrier') &&
                     !args[0].includes('/shop/update_carrier_booking')) {
                     setTimeout(function() {
-                        console.log('=== FETCH UPDATE_CARRIER COMPLETED, UPDATING BOOKING ===');
                         var currentCarrier = getCurrentCarrierId();
                         if (currentCarrier) {
                             repositionAndUpdateBooking(currentCarrier);
@@ -165,7 +144,6 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
         // Listen for date changes
         document.addEventListener('change', function(e) {
             if (e.target.id === 'delivery_date') {
-                console.log('=== DATE CHANGED:', e.target.value, '===');
                 var carrierId = getCurrentCarrierId();
                 if (e.target.value && carrierId) {
                     loadTimeSlots(e.target.value, carrierId);
@@ -176,7 +154,6 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
             
             // Listen for time slot changes
             if (e.target.id === 'delivery_time_slot') {
-                console.log('=== TIME SLOT CHANGED:', e.target.value, '===');
                 // Save the selected time slot
                 saveDeliveryBooking();
             }
@@ -187,7 +164,6 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
             if (e.target.closest('input[name="carrier_id"]') || 
                 e.target.closest('label[for*="carrier"]')) {
                 setTimeout(function() {
-                    console.log('=== FALLBACK: CARRIER CLICK DETECTED ===');
                     var currentCarrier = getCurrentCarrierId();
                     if (currentCarrier) {
                         repositionAndUpdateBooking(currentCarrier);
@@ -201,17 +177,13 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
         var checkedCarrier = document.querySelector('input[name="carrier_id"]:checked') ||
                             document.querySelector('input[type="radio"]:checked');
         
-        console.log('=== CURRENT CARRIER:', checkedCarrier ? checkedCarrier.value : 'none', '===');
         return checkedCarrier ? checkedCarrier.value : null;
     }
     
     function repositionAndUpdateBooking(carrierId) {
-        console.log('=== REPOSITIONING AND UPDATING BOOKING FOR CARRIER:', carrierId, '===');
-        
         // Remove existing booking section
         var existingBooking = document.querySelector('.js_delivery_booking');
         if (existingBooking) {
-            console.log('=== REMOVING EXISTING BOOKING SECTION ===');
             existingBooking.remove();
         }
         
@@ -220,49 +192,25 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
                                   document.querySelector('input[value="' + carrierId + '"]') ||
                                   document.querySelector('input[name="carrier_id"]:checked');
         
-        console.log('=== LOOKING FOR CARRIER INPUT WITH VALUE:', carrierId, '===');
-        console.log('=== FOUND CARRIER INPUT:', selectedCarrierInput, '===');
-        
         if (selectedCarrierInput) {
             var carrierContainer = selectedCarrierInput.closest('.o_delivery_carrier_select') ||
                                   selectedCarrierInput.closest('label') ||
                                   selectedCarrierInput.closest('div');
             
             if (carrierContainer) {
-                console.log('=== FOUND CARRIER CONTAINER, INJECTING BOOKING SECTION ===');
                 // Inject booking section after the selected carrier
                 var bookingHTML = generateBookingHTML();
-                
                 carrierContainer.insertAdjacentHTML('afterend', bookingHTML);
-                console.log('=== BOOKING SECTION REPOSITIONED AFTER SELECTED CARRIER ===');
-                
-                // Verify the section was created
-                var newBookingSection = document.querySelector('.js_delivery_booking');
-                if (newBookingSection) {
-                    console.log('=== NEW BOOKING SECTION CREATED SUCCESSFULLY ===');
-                } else {
-                    console.log('=== ERROR: NEW BOOKING SECTION NOT FOUND AFTER CREATION ===');
-                }
-            } else {
-                console.log('=== CARRIER CONTAINER NOT FOUND ===');
             }
         } else {
-            console.log('=== SELECTED CARRIER INPUT NOT FOUND FOR CARRIER:', carrierId, '===');
-            console.log('=== TRYING FALLBACK INJECTION ===');
-            
             // Fallback: inject after the first delivery method or before payment methods
             var fallbackContainer = document.querySelector('.o_delivery_carrier_select') ||
                                    document.querySelector('input[name="carrier_id"]')?.closest('div') ||
                                    document.querySelector('div[name="payment_method"]');
             
             if (fallbackContainer) {
-                console.log('=== FOUND FALLBACK CONTAINER, INJECTING BOOKING SECTION ===');
                 var bookingHTML = generateBookingHTML();
-                
                 fallbackContainer.insertAdjacentHTML('afterend', bookingHTML);
-                console.log('=== BOOKING SECTION INJECTED VIA FALLBACK ===');
-            } else {
-                console.log('=== NO FALLBACK CONTAINER FOUND ===');
             }
         }
         
@@ -272,38 +220,24 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
     
     function checkInitialCarrier() {
         var carrierId = getCurrentCarrierId();
-        console.log('=== INITIAL CARRIER CHECK, FOUND:', carrierId, '===');
         if (carrierId) {
-            console.log('=== CALLING UPDATE BOOKING VISIBILITY FOR INITIAL CARRIER ===');
             updateBookingVisibility(carrierId);
-        } else {
-            console.log('=== NO INITIAL CARRIER FOUND, NOT HIDING SECTION ===');
-            // Don't hide on initial load if no carrier is found
-            // hideBookingSection();
         }
     }
     
     var isUpdatingBooking = false; // Flag to prevent infinite loops
     
     function updateBookingVisibility(carrierId) {
-        console.log('=== UPDATING BOOKING VISIBILITY FOR CARRIER:', carrierId, '===');
-        
         if (!carrierId) {
-            console.log('=== NO CARRIER ID, HIDING BOOKING ===');
             hideBookingSection();
             return;
         }
         
         if (isUpdatingBooking) {
-            console.log('=== ALREADY UPDATING BOOKING, SKIPPING TO PREVENT LOOP ===');
             return;
         }
         
         isUpdatingBooking = true;
-        
-        // Check if booking is enabled for this carrier
-        
-        // Check if booking is enabled for this carrier
         
         // Make AJAX call to check if booking is enabled
         fetch('/shop/update_carrier_booking', {
@@ -331,7 +265,6 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
             }
         })
         .catch(error => {
-            console.error('=== ERROR CHECKING CARRIER BOOKING:', error, '===');
             hideBookingSection();
         })
         .finally(() => {
@@ -343,9 +276,6 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
         var bookingSection = document.querySelector('.js_delivery_booking');
         if (bookingSection) {
             bookingSection.style.display = 'block';
-            console.log('=== SHOWING BOOKING SECTION ===');
-        } else {
-            console.log('=== BOOKING SECTION NOT FOUND WHEN TRYING TO SHOW ===');
         }
     }
     
@@ -353,9 +283,6 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
         var bookingSection = document.querySelector('.js_delivery_booking');
         if (bookingSection) {
             bookingSection.style.display = 'none';
-            console.log('=== HIDING BOOKING SECTION ===');
-        } else {
-            console.log('=== BOOKING SECTION NOT FOUND WHEN TRYING TO HIDE ===');
         }
     }
     
@@ -402,11 +329,9 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
                     option.textContent = slot;
                     timeSelect.appendChild(option);
                 });
-                console.log('Loaded time slots:', data.result.time_slots.length);
             }
         })
         .catch(error => {
-            console.error('Error loading time slots:', error);
             timeSelect.innerHTML = '<option value="">' + _t('error_loading_slots') + '</option>';
         });
     }
@@ -422,8 +347,6 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
         
         // Only save if both date and time slot are selected
         if (selectedDate && selectedTimeSlot) {
-            console.log('=== SAVING DELIVERY BOOKING:', selectedDate, selectedTimeSlot, '===');
-            
             fetch('/shop/set_delivery_booking', {
                 method: 'POST',
                 headers: {
@@ -440,8 +363,6 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
             })
             .then(response => response.json())
             .then(data => {
-                console.log('=== DELIVERY BOOKING SAVED SUCCESSFULLY ===');
-                
                 // Show a confirmation message
                 var bookingSection = document.querySelector('.js_delivery_booking');
                 if (bookingSection) {
@@ -464,7 +385,7 @@ console.log('=== DELIVERY BOOKING JS LOADED ===');
                 }
             })
             .catch(error => {
-                console.error('=== ERROR SAVING DELIVERY BOOKING:', error, '===');
+                // Silent error handling
             });
         }
     }

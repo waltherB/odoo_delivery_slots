@@ -22,8 +22,16 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
         start_date = date.today() + timedelta(days=carrier.start_delivery_after_days or 0)
         
         # Get user's language for proper date formatting
-        user_lang = request.env.user.lang or 'en_US'
-        locale = user_lang.replace('_', '-').lower()
+        user_lang = request.env.user.lang or request.env.context.get('lang', 'en_US')
+        
+        # Convert Odoo language code to Babel locale
+        locale_mapping = {
+            'da_DK': 'da',
+            'da': 'da',
+            'en_US': 'en',
+            'en': 'en'
+        }
+        locale = locale_mapping.get(user_lang, 'en')
         
         for i in range(30): # Show 30 days
             current_date = start_date + timedelta(days=i)
@@ -35,9 +43,20 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
                         format='full', 
                         locale=locale
                     )
-                except:
-                    # Fallback to English if locale not available
-                    formatted_date = current_date.strftime('%A, %d %B %Y')
+                    # Capitalize first letter for proper formatting
+                    formatted_date = formatted_date[0].upper() + formatted_date[1:] if formatted_date else formatted_date
+                except Exception as e:
+                    # Fallback to manual Danish formatting if Babel fails
+                    if locale == 'da':
+                        weekdays_da = ['mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag', 'lørdag', 'søndag']
+                        months_da = ['januar', 'februar', 'marts', 'april', 'maj', 'juni', 
+                                   'juli', 'august', 'september', 'oktober', 'november', 'december']
+                        weekday_name = weekdays_da[current_date.weekday()]
+                        month_name = months_da[current_date.month - 1]
+                        formatted_date = f"{weekday_name.capitalize()}, {current_date.day}. {month_name} {current_date.year}"
+                    else:
+                        # English fallback
+                        formatted_date = current_date.strftime('%A, %d %B %Y')
                 
                 dates.append({
                     'value': current_date.isoformat(), 
@@ -55,15 +74,10 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
         weekday = str(selected_date.weekday())
         slots = carrier.booking_slot_ids.filtered(lambda s: s.weekday == weekday)
         
-        # Debug info
-        print(f"Selected date: {selected_date}, weekday: {weekday}")
-        print(f"Found slots: {len(slots)}, carrier: {carrier.name}")
-        
         time_slots = []
         interval_hours = (carrier.time_slot_interval or 60) / 60.0
         
         for slot in slots:
-            print(f"Processing slot: {slot.weekday}, {slot.opening_hour} - {slot.closing_hour}")
             current_time = slot.opening_hour
             while current_time + interval_hours <= slot.closing_hour:
                 start_hour = int(current_time)
@@ -74,10 +88,7 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
                 
                 time_slot = f"{start_hour:02d}:{start_min:02d} - {end_hour:02d}:{end_min:02d}"
                 time_slots.append(time_slot)
-                print(f"Added time slot: {time_slot}")
                 current_time += interval_hours
-                
-        print(f"Returning time slots: {time_slots}")
         return {'time_slots': time_slots}
 
     @http.route(['/shop/set_delivery_booking'], type='json', auth="public", website=True)
