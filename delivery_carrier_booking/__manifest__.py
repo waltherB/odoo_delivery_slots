@@ -43,8 +43,8 @@ Technical Details:
 * Responsive Bootstrap-based interface
 * Extensible architecture for custom requirements
     """,
-    'author': 'Your Company Name',
-    'website': 'https://www.yourcompany.com',
+    'author': 'Walther Barnett',
+    'website': 'https://github.com/waltherB/odoo_delivery_slots',
     'license': 'LGPL-3',
     'depends': ['website_sale', 'delivery', 'calendar'],
     'data': [
@@ -65,14 +65,11 @@ Technical Details:
     'images': [
         'static/description/banner.png',
         'static/description/icon.png',
-        'static/description/screenshot_1.png',
-        'static/description/screenshot_2.png',
-        'static/description/screenshot_3.png',
+        'static/description/screenshot-1.png',
+        'static/description/screenshot-2.png',
+        'static/description/screenshot-3.png',
     ],
     'installable': True,
     'application': False,
-    'auto_install': False,
-    'price': 99.00,
-    'currency': 'EUR',
-    'support': 'support@yourcompany.com',
+    'auto_install': False,   
 }
