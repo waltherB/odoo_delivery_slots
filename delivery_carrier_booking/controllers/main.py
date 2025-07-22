@@ -12,7 +12,7 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
     @http.route(['/shop/payment/transaction'], type='http', auth="public", website=True, sitemap=False)
     def payment_transaction(self, **post):
         order = request.website.sale_get_order()
-        if order.carrier_id and order.carrier_id.enable_delivery_date_selection and not order.delivery_booking_date:
+        if order.carrier_id and order.carrier_id.sudo().enable_delivery_date_selection and not order.delivery_booking_date:
             return request.redirect("/shop/checkout?carrier_booking_error=1")
 
         return super(WebsiteSaleDeliveryBooking, self).payment_transaction(**post)
@@ -80,7 +80,8 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
     @http.route(['/shop/get_time_slots'], type='json', auth="public", website=True)
     def get_time_slots(self, delivery_date, carrier_id, **post):
         try:
-            carrier = request.env['delivery.carrier'].browse(int(carrier_id))
+            # Use sudo() to allow anonymous users to read carrier data
+            carrier = request.env['delivery.carrier'].sudo().browse(int(carrier_id))
             if not carrier or not delivery_date:
                 return {'time_slots': [], 'error': 'Missing carrier or date'}
 
@@ -145,7 +146,8 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
     @http.route(['/shop/update_carrier_booking'], type='json', auth="public", website=True)
     def update_carrier_booking(self, carrier_id, **post):
         try:
-            carrier = request.env['delivery.carrier'].browse(int(carrier_id))
+            # Use sudo() to allow anonymous users to read carrier data
+            carrier = request.env['delivery.carrier'].sudo().browse(int(carrier_id))
             if not carrier:
                 return {'booking_enabled': False, 'error': 'Carrier not found'}
             
@@ -180,7 +182,8 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
 
         order = request.website.sale_get_order()
         if order and order.carrier_id:
-            carrier = order.carrier_id
+            # Use sudo() to ensure anonymous users can access carrier data
+            carrier = order.carrier_id.sudo()
             if carrier.enable_delivery_date_selection:
                 res = super(WebsiteSaleDeliveryBooking, self).checkout(**post)
                 if hasattr(res, 'qcontext'):
@@ -192,7 +195,7 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
     @http.route(['/shop/confirm_order'], type='http', auth="public", website=True, sitemap=False)
     def confirm_order(self, **post):
         order = request.website.sale_get_order()
-        if order.carrier_id and order.carrier_id.enable_delivery_date_selection and not order.delivery_booking_date:
+        if order.carrier_id and order.carrier_id.sudo().enable_delivery_date_selection and not order.delivery_booking_date:
             return request.redirect("/shop/payment?carrier_booking_error=1")
 
         # Add delivery booking data to context for payment page
@@ -200,30 +203,36 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
 
         return result
 
-    @http.route(['/shop/debug_booking'], type='json', auth="public", website=True)
+    @http.route(['/shop/debug_booking'], type='http', auth="public", website=True)
     def debug_booking(self, **post):
         """Debug endpoint to check anonymous user booking status"""
         try:
             order = request.website.sale_get_order()
             user = request.env.user
             
-            return {
+            debug_info = {
                 'success': True,
-                'debug_info': {
-                    'has_order': bool(order),
-                    'order_id': order.id if order else None,
-                    'order_state': order.state if order else None,
-                    'user_is_public': user._is_public(),
-                    'user_id': user.id,
-                    'user_name': user.name,
-                    'website_id': request.website.id,
-                    'session_id': request.session.sid if hasattr(request.session, 'sid') else 'unknown',
-                    'context_lang': request.env.context.get('lang'),
-                    'cookies': dict(request.httprequest.cookies),
-                }
+                'has_order': bool(order),
+                'order_id': order.id if order else None,
+                'order_state': order.state if order else None,
+                'user_is_public': user._is_public(),
+                'user_id': user.id,
+                'user_name': user.name,
+                'website_id': request.website.id,
+                'context_lang': request.env.context.get('lang'),
+                'cookies': dict(request.httprequest.cookies),
             }
+            
+            return request.make_response(
+                json.dumps(debug_info, indent=2),
+                headers=[('Content-Type', 'application/json')]
+            )
         except Exception as e:
-            return {'success': False, 'error': str(e)}
+            error_info = {'success': False, 'error': str(e)}
+            return request.make_response(
+                json.dumps(error_info, indent=2),
+                headers=[('Content-Type', 'application/json')]
+            )
 
 
 
