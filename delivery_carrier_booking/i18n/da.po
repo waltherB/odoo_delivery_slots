@@ -1,0 +1,225 @@
+# Danish translation for delivery_carrier_booking
+# Copyright (C) 2025 Your Company Name
+# This file is distributed under the same license as the delivery_carrier_booking package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: delivery_carrier_booking 17.0.1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-07-18 12:00+0000\n"
+"PO-Revision-Date: 2025-07-18 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Danish\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,field_description:delivery_carrier_booking.field_delivery_carrier_booking_slot__closing_hour
+msgid "Closing Hour"
+msgstr "Lukketid"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,help:delivery_carrier_booking.field_delivery_carrier_booking_slot__closing_hour
+msgid "Closing hour in 24h format (e.g., 17.5 for 17:30)"
+msgstr "Lukketid i 24-timers format (f.eks. 17.5 for 17:30)"
+
+#. module: delivery_carrier_booking
+#: model_terms:ir.ui.view,arch_db:delivery_carrier_booking.view_delivery_carrier_form_with_booking
+msgid "Closing Time"
+msgstr "Lukketid"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,field_description:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Day of the Week"
+msgstr "Ugedag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Monday"
+msgstr "Mandag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Tuesday"
+msgstr "Tirsdag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Wednesday"
+msgstr "Onsdag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Thursday"
+msgstr "Torsdag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Friday"
+msgstr "Fredag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Saturday"
+msgstr "Lørdag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Sunday"
+msgstr "Søndag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,field_description:delivery_carrier_booking.field_delivery_carrier__enable_delivery_date_selection
+msgid "Enable Delivery Date Selection?"
+msgstr "Aktivér valg af leveringsdato?"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,field_description:delivery_carrier_booking.field_delivery_carrier__enable_delivery_time_slot_selection
+msgid "Enable Delivery Time Slot Selection?"
+msgstr "Aktivér valg af leveringstidspunkt?"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,field_description:delivery_carrier_booking.field_delivery_carrier__max_orders_per_slot
+msgid "Max Orders per Slot?"
+msgstr "Maks. ordrer per tidspunkt?"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,help:delivery_carrier_booking.field_delivery_carrier__max_orders_per_slot
+msgid "Maximum number of orders that can be scheduled in a single time slot."
+msgstr "Maksimalt antal ordrer der kan planlægges i et enkelt tidspunkt."
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,field_description:delivery_carrier_booking.field_delivery_carrier_booking_slot__opening_hour
+msgid "Opening Hour"
+msgstr "Åbningstid"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,help:delivery_carrier_booking.field_delivery_carrier_booking_slot__opening_hour
+msgid "Opening hour in 24h format (e.g., 9.5 for 09:30)"
+msgstr "Åbningstid i 24-timers format (f.eks. 9.5 for 09:30)"
+
+#. module: delivery_carrier_booking
+#: model_terms:ir.ui.view,arch_db:delivery_carrier_booking.view_delivery_carrier_form_with_booking
+msgid "Opening Time"
+msgstr "Åbningstid"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,field_description:delivery_carrier_booking.field_delivery_carrier__start_delivery_after_days
+msgid "Start Delivery After (Days)?"
+msgstr "Start levering efter (dage)?"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,field_description:delivery_carrier_booking.field_delivery_carrier__time_slot_interval
+msgid "Time Slot Interval (Minutes)?"
+msgstr "Tidspunkt interval (minutter)?"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,field_description:delivery_carrier_booking.field_delivery_carrier__booking_slot_ids
+msgid "Time Schedules"
+msgstr "Tidsplaner"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,field_description:delivery_carrier_booking.field_sale_order__delivery_booking_date
+msgid "Delivery Date"
+msgstr "Leveringsdato"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,field_description:delivery_carrier_booking.field_sale_order__delivery_booking_slot
+msgid "Delivery Time Slot"
+msgstr "Leveringstidspunkt"
+
+#. module: delivery_carrier_booking
+#: model_terms:ir.ui.view,arch_db:delivery_carrier_booking.view_delivery_carrier_form_with_booking
+msgid "Booking"
+msgstr "Booking"
+
+#. module: delivery_carrier_booking
+#: model_terms:ir.ui.view,arch_db:delivery_carrier_booking.view_delivery_carrier_form_with_booking
+msgid "Scheduling Rules"
+msgstr "Planlægningsregler"
+
+#. module: delivery_carrier_booking
+#: model_terms:ir.ui.view,arch_db:delivery_carrier_booking.view_delivery_carrier_form_with_booking
+msgid "Please save the delivery method first before adding time schedules."
+msgstr "Gem venligst leveringsmetoden først før du tilføjer tidsplaner."
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,help:delivery_carrier_booking.field_delivery_carrier__start_delivery_after_days
+msgid "Minimum number of days from today when delivery can be scheduled. E.g., 0 for same day, 1 for next day."
+msgstr "Minimum antal dage fra i dag hvor levering kan planlægges. F.eks. 0 for samme dag, 1 for næste dag."
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,help:delivery_carrier_booking.field_delivery_carrier__time_slot_interval
+msgid "Allow customers to select a delivery time slot for a chosen date."
+msgstr "Tillad kunder at vælge et leveringstidspunkt for en valgt dato."
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,help:delivery_carrier_booking.field_delivery_carrier__enable_delivery_date_selection
+msgid "Allow customers to select a delivery date."
+msgstr "Tillad kunder at vælge en leveringsdato."
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,help:delivery_carrier_booking.field_delivery_carrier__enable_delivery_time_slot_selection
+msgid "Allow customers to select a delivery time slot for a chosen date."
+msgstr "Tillad kunder at vælge et leveringstidspunkt for en valgt dato."
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Monday"
+msgstr "Mandag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Tuesday"
+msgstr "Tirsdag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Wednesday"
+msgstr "Onsdag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Thursday"
+msgstr "Torsdag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Friday"
+msgstr "Fredag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Saturday"
+msgstr "Lørdag"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.fields,selection:delivery_carrier_booking.field_delivery_carrier_booking_slot__weekday
+msgid "Sunday"
+msgstr "Søndag"
+
+#. module: delivery_carrier_booking
+#: code:addons/delivery_carrier_booking/models/sale_order.py:0
+#, python-format
+msgid "Delivery for %s"
+msgstr "Levering for %s"
+
+#. module: delivery_carrier_booking
+#: code:addons/delivery_carrier_booking/models/sale_order.py:0
+#, python-format
+msgid "Delivery for order %s.\\nTime slot: %s"
+msgstr "Levering for ordre %s.\\nTidspunkt: %s"
+
+#. module: delivery_carrier_booking
+#: model:ir.model.constraint,message:delivery_carrier_booking.constraint_delivery_carrier_booking_slot_opening_hour_check
+msgid "Opening hour must be between 0 and 24."
+msgstr "Åbningstid skal være mellem 0 og 24."
+
+#. module: delivery_carrier_booking
+#: model:ir.model.constraint,message:delivery_carrier_booking.constraint_delivery_carrier_booking_slot_closing_hour_check
+msgid "Closing hour must be between 0 and 24 and greater than opening hour."
+msgstr "Lukketid skal være mellem 0 og 24 og større end åbningstid."
+
