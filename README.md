@@ -29,7 +29,7 @@ Allow your customers to select specific delivery dates and time slots during che
 
 ## 📋 Requirements
 
-- Odoo 17.0+
+- Odoo 17.0
 - Website Sale module
 - Delivery module
 
@@ -124,7 +124,7 @@ Allow your customers to select specific delivery dates and time slots during che
 
 ## 🌐 Compatibility
 
-- **Odoo Version**: 17.0+
+- **Odoo Version**: 17.0
 - **Dependencies**: `website_sale`, `delivery`
 - **Languages**: English (default), Danish (complete translation)
 - **Browsers**: Chrome, Firefox, Safari, Edge
