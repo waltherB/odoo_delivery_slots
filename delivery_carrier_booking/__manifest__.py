@@ -2,42 +2,62 @@
     'name': 'Delivery Carrier Booking & Scheduling',
     'version': '17.0.1.0.0',
     'category': 'Website/eCommerce',
-    'summary': 'Allow customers to schedule delivery dates and time slots during checkout',
+    'summary': '🆓 Open Source Delivery Scheduling - Community-driven, forever free',
     'description': """
-Delivery Carrier Booking & Scheduling
-=====================================
+🚚 Open Source Delivery Carrier Booking
+=======================================
 
-This module extends Odoo's delivery functionality by allowing customers to schedule their deliveries during the checkout process.
+**100% FREE & OPEN SOURCE** - No licensing fees, ever!
 
-Key Features:
-------------
-* **Customer Self-Service**: Customers can select preferred delivery dates and time slots
-* **Flexible Configuration**: Configure different time slots and availability for each delivery carrier
-* **Dynamic Interface**: Booking section appears only for carriers with scheduling enabled
-* **Real-time Updates**: Available time slots update based on selected date and carrier capacity
-* **Order Integration**: Booking information is saved to sales orders and visible to staff
-* **Calendar Integration**: Automatic calendar events created for scheduled deliveries
-* **Responsive Design**: Works seamlessly on desktop and mobile devices
+🌟 Community-Powered Solution:
+------------------------------
+This module is built and maintained by the global Odoo community. 
+When you use it, you're joining thousands of developers and businesses 
+who believe in collaborative, transparent software development.
 
-Configuration:
--------------
-1. Go to Inventory > Configuration > Delivery > Delivery Methods
-2. Edit or create a delivery carrier
-3. Enable "Delivery Date Selection" and "Time Slot Selection"
-4. Configure booking slots with weekdays and time ranges
-5. Set capacity limits and advance booking requirements
+✨ What You Get (Completely Free):
+---------------------------------
+* **Customer Self-Service**: Easy date and time slot selection during checkout
+* **Flexible Configuration**: Different booking rules per delivery carrier  
+* **Real-time Updates**: Dynamic availability based on your capacity settings
+* **Mobile Responsive**: Perfect experience on phones, tablets, and desktop
+* **Multi-language Ready**: English and Danish included, more coming
+* **Calendar Integration**: Automatic delivery events for your team
+* **Order Integration**: Booking details seamlessly appear in sales orders
+* **Anonymous Support**: Works for guest checkout (no login required)
 
-Usage:
-------
-* Customers see the booking interface during checkout for enabled carriers
-* Available dates are calculated based on your advance booking settings
-* Time slots are generated from your configured booking slots
-* Selected booking information appears on sales orders
-* Calendar events are automatically created when orders are confirmed
+🚀 Quick Setup (5 minutes):
+---------------------------
+1. Install this free module from GitHub
+2. Go to Inventory → Delivery → Delivery Methods  
+3. Enable "Delivery Date Selection" for your carriers
+4. Configure time slots and daily capacity limits
+5. Done! Customers can now schedule their deliveries
 
-Technical Details:
------------------
-* Compatible with Odoo 17.0
+🤝 Join Our Open Source Community:
+----------------------------------
+* **⭐ Star us**: https://github.com/waltherB/odoo_delivery_slots
+* **🍴 Fork & customize**: Make it your own
+* **🐛 Report issues**: Help us improve
+* **💡 Request features**: Share your ideas  
+* **🔧 Contribute code**: Submit pull requests
+* **🌍 Add translations**: Support more languages
+* **💬 Get help**: Community discussions available
+
+**Why Open Source?**
+• No vendor lock-in - you own your solution
+• Transparent code - review everything
+• Community support - help from real users
+• Continuous improvement - better together
+• Zero licensing costs - free forever
+
+**Ready to contribute?** Check out our GitHub repository!
+
+📄 License: LGPL-3.0 (Free for commercial use)
+🌍 Translations: Help us add more languages
+🐛 Bugs: Report on GitHub for quick fixes
+
+Join our growing community of users and contributors!
 * Integrates with existing website_sale and delivery modules
 * Uses AJAX for dynamic content loading
 * Responsive Bootstrap-based interface
