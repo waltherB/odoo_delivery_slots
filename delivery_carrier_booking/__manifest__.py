@@ -1,6 +1,6 @@
 {
     'name': 'Delivery Carrier Booking & Scheduling',
-    'version': '17.0.1.0.0',
+    'version': '18.0.1.0.0',
     'category': 'Website/eCommerce',
     'summary': '🆓 Open Source Delivery Scheduling - Community-driven, forever free',
     'description': """

@@ -24,11 +24,11 @@
                         Please save the delivery method first before adding time schedules.
                     </div>
                     <field name="booking_slot_ids" readonly="not id">
-                        <tree editable="bottom">
+                        <list editable="bottom">
                             <field name="weekday"/>
                             <field name="opening_hour" widget="float_time" options="{'format': 'HH:mm'}" string="Opening Time"/>
                             <field name="closing_hour" widget="float_time" options="{'format': 'HH:mm'}" string="Closing Time"/>
-                        </tree>
+                        </list>
                         <form>
                             <group>
                                 <field name="weekday"/>

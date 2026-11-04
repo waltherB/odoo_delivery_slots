@@ -3,7 +3,7 @@
 ## Free & Open Source Delivery Scheduling for Odoo
 
 [![License: LGPL-3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![Odoo Version](https://img.shields.io/badge/Odoo-17.0-purple.svg)](https://github.com/odoo/odoo)
+[![Odoo Version](https://img.shields.io/badge/Odoo-18.0-purple.svg)](https://github.com/odoo/odoo)
 [![GitHub Issues](https://img.shields.io/github/issues/waltherB/odoo_delivery_slots)](https://github.com/waltherB/odoo_delivery_slots/issues)
 [![GitHub Forks](https://img.shields.io/github/forks/waltherB/odoo_delivery_slots)](https://github.com/waltherB/odoo_delivery_slots/network)
 [![GitHub Stars](https://img.shields.io/github/stars/waltherB/odoo_delivery_slots)](https://github.com/waltherB/odoo_delivery_slots/stargazers)
@@ -73,7 +73,7 @@ This project is **100% free** and **open source** because we believe the best so
 
 ### Requirements
 
-- Odoo 17.0 or later
+- Odoo 18.0
 - Website Sale module (usually pre-installed)
 - Delivery module (usually pre-installed)
 

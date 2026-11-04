@@ -1,21 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from odoo import http, _
+from odoo.exceptions import ValidationError
 from odoo.http import request
 from odoo.addons.website_sale.controllers.main import WebsiteSale
+from odoo.addons.website_sale.controllers.payment import PaymentPortal
 import json
 from datetime import date, timedelta
 import babel.dates
 
 class WebsiteSaleDeliveryBooking(WebsiteSale):
-
-    @http.route(['/shop/payment/transaction'], type='http', auth="public", website=True, sitemap=False)
-    def payment_transaction(self, **post):
-        order = request.website.sale_get_order()
-        if order.carrier_id and order.carrier_id.sudo().enable_delivery_date_selection and not order.delivery_booking_date:
-            return request.redirect("/shop/checkout?carrier_booking_error=1")
-
-        return super(WebsiteSaleDeliveryBooking, self).payment_transaction(**post)
 
     def _get_available_dates(self, carrier):
         dates = []
@@ -175,33 +169,30 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
         except Exception as e:
             return {'booking_enabled': False, 'error': str(e)}
 
-    @http.route(['/shop/checkout'], type='http', auth='public', website=True, sitemap=False)
-    def checkout(self, **post):
-        if post.get('carrier_booking_error'):
-            post['carrier_booking_error'] = 'Please select a delivery date for your booking.'
+    @http.route()
+    def shop_checkout(self, try_skip_step=None, **query_params):
+        if query_params.get('carrier_booking_error'):
+            query_params['carrier_booking_error'] = _('Please select a delivery date for your booking.')
 
         order = request.website.sale_get_order()
         if order and order.carrier_id:
-            # Use sudo() to ensure anonymous users can access carrier data
             carrier = order.carrier_id.sudo()
             if carrier.enable_delivery_date_selection:
-                res = super(WebsiteSaleDeliveryBooking, self).checkout(**post)
+                res = super().shop_checkout(try_skip_step=try_skip_step, **query_params)
                 if hasattr(res, 'qcontext'):
                     res.qcontext['delivery_dates'] = self._get_available_dates(carrier)
+                    if query_params.get('carrier_booking_error'):
+                        res.qcontext['carrier_booking_error'] = query_params['carrier_booking_error']
                 return res
 
-        return super(WebsiteSaleDeliveryBooking, self).checkout(**post)
+        return super().shop_checkout(try_skip_step=try_skip_step, **query_params)
 
-    @http.route(['/shop/confirm_order'], type='http', auth="public", website=True, sitemap=False)
-    def confirm_order(self, **post):
+    @http.route()
+    def shop_confirm_order(self, **post):
         order = request.website.sale_get_order()
-        if order.carrier_id and order.carrier_id.sudo().enable_delivery_date_selection and not order.delivery_booking_date:
-            return request.redirect("/shop/payment?carrier_booking_error=1")
-
-        # Add delivery booking data to context for payment page
-        result = super(WebsiteSaleDeliveryBooking, self).confirm_order(**post)
-
-        return result
+        if order and order.carrier_id and order.carrier_id.sudo().enable_delivery_date_selection and not order.delivery_booking_date:
+            return request.redirect("/shop/checkout?carrier_booking_error=1")
+        return super().shop_confirm_order(**post)
 
     @http.route(['/shop/debug_booking'], type='http', auth="public", website=True)
     def debug_booking(self, **post):
@@ -233,6 +224,15 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
                 json.dumps(error_info, indent=2),
                 headers=[('Content-Type', 'application/json')]
             )
+
+
+class WebsiteSaleDeliveryBookingPayment(PaymentPortal):
+
+    def _validate_transaction_for_order(self, transaction, sale_order):
+        super()._validate_transaction_for_order(transaction, sale_order)
+        carrier = sale_order.carrier_id
+        if carrier and carrier.enable_delivery_date_selection and not sale_order.delivery_booking_date:
+            raise ValidationError(_('Please select a delivery date before payment.'))
 
 
 
