@@ -5,6 +5,18 @@ All notable changes to the Delivery Carrier Booking module will be documented in
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [18.0.1.0.0] - 2026-11-06
+
+### Changed
+- Updated the module release version and compatibility target to Odoo 18.0.
+- Retained the existing `website_sale`, `delivery`, and `calendar` dependencies.
+
+### Compatibility
+- **Odoo Version**: 18.0
+- **Dependencies**: `website_sale`, `delivery`, `calendar`
+
+No behavior changes or data migrations are documented for this version.
+
 ## [1.0.0] - 2025-07-18
 
 ### Added
