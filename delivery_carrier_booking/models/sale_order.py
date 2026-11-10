@@ -5,8 +5,8 @@ from odoo import models, fields, api, _
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    delivery_booking_date = fields.Date(string=_('Delivery Date'))
-    delivery_booking_slot = fields.Char(string=_('Delivery Time Slot'))
+    delivery_booking_date = fields.Date(string='Delivery Date')
+    delivery_booking_slot = fields.Char(string='Delivery Time Slot')
 
     def _action_confirm(self):
         res = super(SaleOrder, self)._action_confirm()
