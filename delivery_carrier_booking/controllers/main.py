@@ -152,6 +152,9 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
             
             result = {
                 'booking_enabled': carrier.enable_delivery_date_selection,
+                'time_slot_enabled': carrier.enable_delivery_time_slot_selection,
+                'delivery_date': order.delivery_booking_date.isoformat() if order.delivery_booking_date else False,
+                'delivery_time_slot': order.delivery_booking_slot,
                 'delivery_dates': [],
                 'debug_info': {
                     'carrier_id': carrier_id,
@@ -190,8 +193,13 @@ class WebsiteSaleDeliveryBooking(WebsiteSale):
     @http.route()
     def shop_confirm_order(self, **post):
         order = request.website.sale_get_order()
-        if order and order.carrier_id and order.carrier_id.sudo().enable_delivery_date_selection and not order.delivery_booking_date:
-            return request.redirect("/shop/checkout?carrier_booking_error=1")
+        if order and order.carrier_id:
+            carrier = order.carrier_id.sudo()
+            if carrier.enable_delivery_date_selection and (
+                not order.delivery_booking_date
+                or (carrier.enable_delivery_time_slot_selection and not order.delivery_booking_slot)
+            ):
+                return request.redirect("/shop/checkout?carrier_booking_error=1")
         return super().shop_confirm_order(**post)
 
     @http.route(['/shop/debug_booking'], type='http', auth="public", website=True)
@@ -231,8 +239,10 @@ class WebsiteSaleDeliveryBookingPayment(PaymentPortal):
     def _validate_transaction_for_order(self, transaction, sale_order):
         super()._validate_transaction_for_order(transaction, sale_order)
         carrier = sale_order.carrier_id
-        if carrier and carrier.enable_delivery_date_selection and not sale_order.delivery_booking_date:
-            raise ValidationError(_('Please select a delivery date before payment.'))
-
+        if carrier and carrier.enable_delivery_date_selection:
+            if not sale_order.delivery_booking_date:
+                raise ValidationError(_('Please select a delivery date before payment.'))
+            if carrier.enable_delivery_time_slot_selection and not sale_order.delivery_booking_slot:
+                raise ValidationError(_('Please select a delivery time slot before payment.'))
 
 

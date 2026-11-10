@@ -73,11 +73,56 @@ This project is **100% free** and **open source** because we believe the best so
 
 ### Requirements
 
-- Odoo 17.0 or later
+- Odoo 18.0
 - Website Sale module (usually pre-installed)
 - Delivery module (usually pre-installed)
 
 ## ⚙️ Configuration
+
+### Odoo 18 checkout
+
+The date and time selectors appear below the selected delivery method on the
+delivery checkout step (`/shop/checkout`), before payment. Enable date selection
+on the carrier and configure its weekday schedules. Time selection is required
+only when enabled on that carrier. Continue is disabled until the required
+selection has been saved; booking errors are displayed beside the selectors.
+
+The frontend extends Odoo 18's `WebsiteSaleCheckout` delivery update hook.
+It does not intercept global network requests or use Odoo 17 carrier selectors.
+
+### Checkout regression tests
+
+From the migration workspace root:
+
+```bash
+node --test addons/custom/odoo_delivery_slots/delivery_carrier_booking/tests/delivery_booking.test.cjs
+```
+
+Run the isolated controller guards against the installed Odoo 18 framework
+(mocked request and parent methods; no database writes):
+
+```bash
+docker exec -i odoo18-manual-acceptance python3 - <<'PY'
+import runpy
+import unittest
+import odoo
+from odoo.modules import module
+odoo.tools.config.parse_config([
+    '-c', '/etc/odoo/odoo.conf', '--log-handler=odoo.tools.translate:ERROR',
+])
+module.initialize_sys_path()
+namespace = runpy.run_path(
+    '/mnt/extra-addons/custom/odoo_delivery_slots/'
+    'delivery_carrier_booking/tests/test_booking_validation.py'
+)
+suite = unittest.defaultTestLoader.loadTestsFromTestCase(namespace['TestBookingValidation'])
+result = unittest.TextTestRunner(verbosity=2).run(suite)
+raise SystemExit(not result.wasSuccessful())
+PY
+```
+
+These unit tests do not replace fresh installation, module update, browser
+checkout, or order-confirmation acceptance tests.
 
 ### Step 1: Enable Booking for Carriers
 
